@@ -139,7 +139,7 @@ struct DeveloperOptionsScreen: View {
             } header: {
                 Text("Calls")
             } footer: {
-                Text("The URL override only applies to calls run in the Element Call web view, which native calls replace.")
+                Text("The URL override only applies to calls run in the 2ecure Call web view, which native calls replace.")
             }
             
             Section("Notifications") {
