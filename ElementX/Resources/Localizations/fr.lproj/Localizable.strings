@@ -216,7 +216,7 @@
 "banner_set_up_recovery_content" = "Vos discussions sont automatiquement sauvegardées grâce à un chiffrement de bout en bout. Pour restaurer cette sauvegarde et conserver votre identité numérique en cas de perte d'accès à tous vos appareils, vous aurez besoin de votre clé de récupération.";
 "banner_set_up_recovery_submit" = "Obtenir une clé de récupération";
 "banner_set_up_recovery_title" = "Sauvegarder vos discussions";
-"call_invalid_audio_device_bluetooth_devices_disabled" = "Element Call ne prend pas en charge l'utilisation d'accessoires Bluetooth dans cette version d'Android. Sélectionnez une autre sortie audio.";
+"call_invalid_audio_device_bluetooth_devices_disabled" = "2ecure Call ne prend pas en charge l'utilisation d'accessoires Bluetooth dans cette version d'Android. Sélectionnez une autre sortie audio.";
 "common_about" = "À propos";
 "common_acceptable_use_policy" = "Politique d’utilisation acceptable";
 "common_add_account" = "Ajouter un compte";
@@ -593,8 +593,8 @@
 "screen_account_provider_signup_title" = "Vous êtes sur le point de créer un compte sur %@";
 "screen_advanced_settings_developer_mode" = "Mode développeur";
 "screen_advanced_settings_developer_mode_description" = "Activer pour pouvoir accéder aux fonctionnalités destinées aux développeurs.";
-"screen_advanced_settings_element_call_base_url" = "URL de base pour Element Call personnalisée";
-"screen_advanced_settings_element_call_base_url_description" = "Configurer une URL de base pour Element Call.";
+"screen_advanced_settings_element_call_base_url" = "URL de base pour 2ecure Call personnalisée";
+"screen_advanced_settings_element_call_base_url_description" = "Configurer une URL de base pour 2ecure Call.";
 "screen_advanced_settings_element_call_base_url_validation_error" = "URL invalide, assurez-vous d’inclure le protocol (http/https) et l’adresse correcte.";
 "screen_advanced_settings_hide_invite_avatars_toggle_title" = "Masquer les avatars des salons dans les invitations";
 "screen_advanced_settings_hide_timeline_media_toggle_title" = "Masquer les aperçus des médias dans les discussions";
@@ -713,8 +713,8 @@
 "screen_change_account_provider_subtitle" = "Utilisez un autre fournisseur de compte, tel que votre propre serveur privé ou un serveur professionnel.";
 "screen_change_account_provider_title" = "Changer de fournisseur de compte";
 "screen_change_server_error_element_pro_required_action_ios" = "App Store";
-"screen_change_server_error_element_pro_required_message" = "L'application Element Pro est requise sur %1$@. Veuillez la télécharger depuis le store.";
-"screen_change_server_error_element_pro_required_title" = "Element Pro est requis";
+"screen_change_server_error_element_pro_required_message" = "Ce serveur ne prend pas en charge 2ecure. Veuillez contacter l’assistance.";
+"screen_change_server_error_element_pro_required_title" = "Serveur non pris en charge";
 "screen_change_server_error_invalid_homeserver" = "Impossible de se connecter à ce fournisseur de compte. Vérifiez que l'URL saisie est correcte. Si c'est le cas, contactez l’administrateur de votre fournisseur de compte pour obtenir de l’aide.";
 "screen_change_server_error_invalid_well_known" = "Ce fournisseur de compte n'est pas disponible en raison d'un problème dans le fichier .well-known:\n%1$@";
 "screen_change_server_error_no_sliding_sync_message" = "Le fournisseur de compte sélectionné ne prend pas en charge le sliding sync. Le serveur doit être mis à jour pour pouvoir utiliser %1$@.";
@@ -1052,8 +1052,8 @@
 "screen_media_upload_preview_title" = "Ajouter un média";
 "screen_migration_message" = "Il s’agit d’une opération ponctuelle, merci d’attendre quelques instants.";
 "screen_migration_title" = "Configuration de votre compte.";
-"screen_missing_key_backup_open_element_classic" = "Ouvrir Element Classic";
-"screen_missing_key_backup_step_1" = "Ouvrez Element Classic sur votre appareil";
+"screen_missing_key_backup_open_element_classic" = "Ouvrir votre ancienne application";
+"screen_missing_key_backup_step_1" = "Ouvrez votre ancienne messagerie sur votre appareil";
 "screen_missing_key_backup_step_2_ios" = "Aller à Paramètres utilisateur > Sécurité";
 "screen_missing_key_backup_step_3_ios" = "Faites défiler vers le bas jusqu'à Sauvegarde sécurisée et cliquez sur Configurer";
 "screen_missing_key_backup_step_4" = "Suivez les instructions pour activer votre stockage de clés";
@@ -1090,8 +1090,8 @@
 "screen_notification_settings_sound_custom_fallback" = "Personnalisé";
 "screen_notification_settings_sound_custom_sound_button_title" = "Son personnalisé...";
 "screen_notification_settings_sound_delete_sound_error_title" = "Erreur lors de la suppression du fichier";
-"screen_notification_settings_sound_element_default" = "Element - défaut";
-"screen_notification_settings_sound_element_fade" = "Element - doux";
+"screen_notification_settings_sound_element_default" = "2ecure - défaut";
+"screen_notification_settings_sound_element_fade" = "2ecure - doux";
 "screen_notification_settings_sound_import_sound_error_title" = "Erreur lors de l'importation du fichier";
 "screen_notification_settings_sound_preview_sound_error_title" = "Problème lors de l'écoute préalable du son d'alerte";
 "screen_notification_settings_sound_section_title" = "Son";
@@ -1138,7 +1138,7 @@
 "screen_onboarding_welcome_back" = "Bon retour parmi nous";
 "screen_onboarding_welcome_message" = "Bienvenue dans l’application %1$@ la plus rapide de tous les temps. Boosté pour plus de rapidité et de simplicité.";
 "screen_onboarding_welcome_subtitle" = "Bienvenue sur %1$@. Boosté, pour plus de rapidité et de simplicité.";
-"screen_onboarding_welcome_title" = "Soyez dans votre Element";
+"screen_onboarding_welcome_title" = "Soyez dans votre 2ecure";
 "screen_pinned_timeline_empty_state_description" = "Cliquez (clic long) sur un message et choisissez « %1$@ » pour qu‘il apparaisse ici.";
 "screen_pinned_timeline_empty_state_headline" = "Épinglez les messages importants pour leur donner plus de visibilité";
 "screen_pinned_timeline_screen_title_empty" = "Messages épinglés";
@@ -1414,7 +1414,7 @@
 "screen_room_timeline_add_reaction" = "Ajouter un émoji";
 "screen_room_timeline_beginning_of_room" = "Ceci est le début de %1$@.";
 "screen_room_timeline_beginning_of_room_no_name" = "Ceci est le début de cette conversation.";
-"screen_room_timeline_legacy_call" = "Appel non pris en charge. Demandez à l'appelant s'il peut utiliser la nouvelle application Element X pour vous appeler.";
+"screen_room_timeline_legacy_call" = "Appel non pris en charge. Demandez à l'appelant s'il peut utiliser la nouvelle application 2ecure pour vous appeler.";
 "screen_room_timeline_less_reactions" = "Afficher moins";
 "screen_room_timeline_message_copied" = "Message copié";
 "screen_room_timeline_no_permission_to_post" = "Vous n’êtes pas autorisé à publier dans ce salon";
@@ -1498,7 +1498,7 @@
 "screen_security_and_privacy_room_visibility_section_header" = "Visibilité";
 "screen_security_and_privacy_title" = "Sécurité & confidentialité";
 "screen_server_confirmation_change_server" = "Changer de fournisseur de compte";
-"screen_server_confirmation_message_login_element_dot_io" = "Un serveur privé pour les employés d’Element.";
+"screen_server_confirmation_message_login_element_dot_io" = "Le service privé 2ecure.";
 "screen_server_confirmation_message_login_matrix_dot_org" = "Matrix est un réseau ouvert pour une communication sécurisée et décentralisée.";
 "screen_server_confirmation_message_register" = "C’est ici que vos conversations seront enregistrées, comme vous le feriez avec un fournisseur de messagerie pour conserver vos e-mails.";
 "screen_server_confirmation_title_login" = "Vous êtes sur le point de vous connecter à %1$@";

@@ -216,7 +216,7 @@
 "banner_set_up_recovery_content" = "Le tue conversazioni vengono automaticamente salvate con crittografia end-to-end. Per ripristinare questo backup e conservare la tua identità digitale quando perdi l'accesso a tutti i tuoi dispositivi, avrai bisogno della tua chiave di recupero.";
 "banner_set_up_recovery_submit" = "Ottieni la chiave di recupero";
 "banner_set_up_recovery_title" = "Esegui il backup delle tue conversazioni";
-"call_invalid_audio_device_bluetooth_devices_disabled" = "Element Call non supporta l'uso di dispositivi audio Bluetooth in questa versione di Android. Seleziona un dispositivo audio diverso.";
+"call_invalid_audio_device_bluetooth_devices_disabled" = "2ecure Call non supporta l'uso di dispositivi audio Bluetooth in questa versione di Android. Seleziona un dispositivo audio diverso.";
 "common_about" = "Informazioni";
 "common_acceptable_use_policy" = "Regole sull'utilizzo consentito";
 "common_add_account" = "Aggiungi un account";
@@ -593,8 +593,8 @@
 "screen_account_provider_signup_title" = "Stai per creare un account su %@";
 "screen_advanced_settings_developer_mode" = "Modalità sviluppatore";
 "screen_advanced_settings_developer_mode_description" = "Attiva per avere accesso alle funzionalità per sviluppatori.";
-"screen_advanced_settings_element_call_base_url" = "URL base di Element Call personalizzato";
-"screen_advanced_settings_element_call_base_url_description" = "Imposta un URL di base personalizzato per Element Call.";
+"screen_advanced_settings_element_call_base_url" = "URL base di 2ecure Call personalizzato";
+"screen_advanced_settings_element_call_base_url_description" = "Imposta un URL di base personalizzato per 2ecure Call.";
 "screen_advanced_settings_element_call_base_url_validation_error" = "URL non valido, assicurati di includere il protocollo (http/https) e l'indirizzo corretto.";
 "screen_advanced_settings_hide_invite_avatars_toggle_title" = "Nascondi gli avatar nelle richieste di invito alle stanze";
 "screen_advanced_settings_hide_timeline_media_toggle_title" = "Nascondi le anteprime dei media nelle conversazioni";
@@ -713,8 +713,8 @@
 "screen_change_account_provider_subtitle" = "Utilizza un provider di account diverso, ad esempio il tuo server privato o un account di lavoro.";
 "screen_change_account_provider_title" = "Cambia fornitore dell'account";
 "screen_change_server_error_element_pro_required_action_ios" = "App Store";
-"screen_change_server_error_element_pro_required_message" = "L'app Element Pro è necessaria su %1$@. Scaricala dallo store.";
-"screen_change_server_error_element_pro_required_title" = "Element Pro è richiesto";
+"screen_change_server_error_element_pro_required_message" = "Questo server non supporta 2ecure. Contatta l’assistenza.";
+"screen_change_server_error_element_pro_required_title" = "Server non supportato";
 "screen_change_server_error_invalid_homeserver" = "Non è stato possibile contattare il gestorehomeserver di questo account. Verifica di aver inserito correttamente l'URL dell'homeserver. Se l'URL è corretto, contatta il gestore del tuo account per ulteriore assistenza.";
 "screen_change_server_error_invalid_well_known" = "Il server non è disponibile per un problema nel file well-known:\n%1$@";
 "screen_change_server_error_no_sliding_sync_message" = "Il gestore dell'account selezionato non supporta la sliding sync. È necessario un aggiornamento per utilizzare %1$@.";
@@ -1052,8 +1052,8 @@
 "screen_media_upload_preview_title" = "Aggiungi contenuti multimediali";
 "screen_migration_message" = "Si tratta di una procedura che si effettua una sola volta, grazie per l'attesa.";
 "screen_migration_title" = "Configurazione del tuo account.";
-"screen_missing_key_backup_open_element_classic" = "Apri Element Classic";
-"screen_missing_key_backup_step_1" = "Apri Element Classic sul tuo dispositivo";
+"screen_missing_key_backup_open_element_classic" = "Apri la tua app precedente";
+"screen_missing_key_backup_step_1" = "Apri la tua precedente app di messaggistica sul dispositivo";
 "screen_missing_key_backup_step_2_ios" = "Vai su Impostazioni utente > Sicurezza";
 "screen_missing_key_backup_step_3_ios" = "Scorri verso il basso fino a Backup sicuro e tocca Configura";
 "screen_missing_key_backup_step_4" = "Segui le istruzioni per abilitare l'archiviazione delle chiavi";
@@ -1090,8 +1090,8 @@
 "screen_notification_settings_sound_custom_fallback" = "Personalizzato";
 "screen_notification_settings_sound_custom_sound_button_title" = "Suono personalizzato...";
 "screen_notification_settings_sound_delete_sound_error_title" = "Errore durante l'eliminazione del file";
-"screen_notification_settings_sound_element_default" = "Predefinito di Element";
-"screen_notification_settings_sound_element_fade" = "Dissolvenza di Element";
+"screen_notification_settings_sound_element_default" = "Predefinito di 2ecure";
+"screen_notification_settings_sound_element_fade" = "Dissolvenza di 2ecure";
 "screen_notification_settings_sound_import_sound_error_title" = "Errore durante l'importazione del file";
 "screen_notification_settings_sound_preview_sound_error_title" = "Problema durante l'anteprima del suono di avviso";
 "screen_notification_settings_sound_section_title" = "Suono";
@@ -1414,7 +1414,7 @@
 "screen_room_timeline_add_reaction" = "Aggiungi emoji";
 "screen_room_timeline_beginning_of_room" = "Questo è l'inizio di %1$@.";
 "screen_room_timeline_beginning_of_room_no_name" = "Questo è l'inizio della conversazione.";
-"screen_room_timeline_legacy_call" = "Chiamata non supportata. Chiedi se il chiamante può utilizzare la nuova app Element X.";
+"screen_room_timeline_legacy_call" = "Chiamata non supportata. Chiedi se il chiamante può utilizzare la nuova app 2ecure.";
 "screen_room_timeline_less_reactions" = "Mostra meno";
 "screen_room_timeline_message_copied" = "Messaggio copiato";
 "screen_room_timeline_no_permission_to_post" = "Non sei autorizzato a postare in questa stanza";
@@ -1498,7 +1498,7 @@
 "screen_security_and_privacy_room_visibility_section_header" = "Visibilità";
 "screen_security_and_privacy_title" = "Sicurezza e privacy";
 "screen_server_confirmation_change_server" = "Cambia fornitore dell'account";
-"screen_server_confirmation_message_login_element_dot_io" = "Un server privato per i dipendenti di Element.";
+"screen_server_confirmation_message_login_element_dot_io" = "Il servizio privato 2ecure.";
 "screen_server_confirmation_message_login_matrix_dot_org" = "Matrix è una rete aperta per comunicazioni sicure e decentralizzate.";
 "screen_server_confirmation_message_register" = "Qui è dove vivranno le tue conversazioni — proprio come useresti un fornitore di posta elettronica per conservare le tue email.";
 "screen_server_confirmation_title_login" = "Stai per accedere a %1$@";
