@@ -1,3 +1,1 @@
-[submodule "Enterprise"]
-	path = Enterprise
-	url = git@github.com:element-hq/element-ios-enterprise
+# 2ecure uses the public FOSS sources only; no private Enterprise submodule.
