@@ -1,27 +1,46 @@
 {
-  "fill" : "automatic",
-  "groups" : [
+  "fill": "automatic",
+  "groups": [
     {
-      "layers" : [
+      "layers": [
         {
-          "glass" : false,
-          "image-name" : "Twoecure.svg",
-          "name" : "AppIcon"
+          "glass": false,
+          "image-name": "Mark.svg",
+          "name": "Mark"
         }
       ],
-      "name" : "Background",
-      "shadow" : {
-        "kind" : "none",
-        "opacity" : 0.5
+      "name": "Mark",
+      "shadow": {
+        "kind": "none",
+        "opacity": 0.5
       },
-      "specular" : false,
-      "translucency" : {
-        "enabled" : false,
-        "value" : 0.5
+      "specular": false,
+      "translucency": {
+        "enabled": false,
+        "value": 0.5
+      }
+    },
+    {
+      "layers": [
+        {
+          "glass": false,
+          "image-name": "Background.png",
+          "name": "Background"
+        }
+      ],
+      "name": "Background",
+      "shadow": {
+        "kind": "none",
+        "opacity": 0.5
+      },
+      "specular": false,
+      "translucency": {
+        "enabled": false,
+        "value": 0.5
       }
     }
   ],
-  "supported-platforms" : {
-    "squares" : "shared"
+  "supported-platforms": {
+    "squares": "shared"
   }
 }

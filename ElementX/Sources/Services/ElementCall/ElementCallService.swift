@@ -102,7 +102,7 @@ class ElementCallService: NSObject, ElementCallServiceProtocol, PKPushRegistryDe
             configuration.supportsVideo = true
             configuration.includesCallsInRecents = true
             
-            if let callKitIcon = UIImage(named: "images/app-logo") {
+            if let callKitIcon = UIImage(named: "images/callkit-icon") {
                 configuration.iconTemplateImageData = callKitIcon.pngData()
             }
             
