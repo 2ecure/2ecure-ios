@@ -120,7 +120,7 @@ actor NotificationServiceExtensionActor {
             } else {
                 await MainActor.run { Self.hasHandledFirstNotificationSinceBoot = true }
                 deliverReceivedWhileOfflineNotification(for: request)
-                return contentHandler(.init())
+                return contentHandler(NotificationFilteringPolicy.suppressedContent(from: request.content))
             }
         }
         
@@ -129,7 +129,7 @@ actor NotificationServiceExtensionActor {
             // swiftlint:disable:next print_deprecation
             print("Device is unlocked but may have missed notifications while offline.")
             deliverReceivedWhileOfflineNotification(for: request)
-            return contentHandler(.init())
+            return contentHandler(NotificationFilteringPolicy.suppressedContent(from: request.content))
         }
         
         guard let roomID = request.content.roomID else {
