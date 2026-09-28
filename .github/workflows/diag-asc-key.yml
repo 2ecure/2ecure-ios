@@ -1,0 +1,32 @@
+name: diag - App Store Connect key
+on: workflow_dispatch
+permissions: { contents: read }
+jobs:
+  diag:
+    runs-on: macos-26
+    steps:
+      - name: Check key file and API login
+        env:
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          K="$RUNNER_TEMP/AuthKey_${ASC_KEY_ID}.p8"
+          printf '%s\n' "$ASC_KEY_P8" > "$K"
+          echo "key sha256: $(shasum -a 256 "$K" | cut -c1-16) size $(wc -c < "$K")"
+          echo "key id length: ${#ASC_KEY_ID}  issuer length: ${#ASC_ISSUER_ID}"
+          python3 - "$K" <<'PY'
+          import sys, json, time, base64, subprocess, urllib.request, os
+          k = sys.argv[1]; kid = os.environ["ASC_KEY_ID"]; iss = os.environ["ASC_ISSUER_ID"]
+          b64 = lambda b: base64.urlsafe_b64encode(b).rstrip(b"=").decode()
+          h = b64(json.dumps({"alg": "ES256", "kid": kid, "typ": "JWT"}).encode())
+          p = b64(json.dumps({"iss": iss, "iat": int(time.time()), "exp": int(time.time()) + 600, "aud": "appstoreconnect-v1"}).encode())
+          der = subprocess.run(["openssl", "dgst", "-sha256", "-sign", k], input=(h + "." + p).encode(), capture_output=True, check=True).stdout
+          i = 2 + (1 if der[1] & 0x80 else 0); rl = der[i + 1]; r = der[i + 2:i + 2 + rl]; i += 2 + rl; sl = der[i + 1]; s = der[i + 2:i + 2 + sl]
+          tok = h + "." + p + "." + b64(r.lstrip(b"\0").rjust(32, b"\0") + s.lstrip(b"\0").rjust(32, b"\0"))
+          req = urllib.request.Request("https://api.appstoreconnect.apple.com/v1/bundleIds?limit=5", headers={"Authorization": "Bearer " + tok})
+          try:
+              print("API login OK:", len(json.load(urllib.request.urlopen(req, timeout=30))["data"]), "bundle ids")
+          except urllib.error.HTTPError as e:
+              print("API login FAILED:", e.code, e.read().decode()[:300])
+          PY
