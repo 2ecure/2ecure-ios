@@ -193,12 +193,13 @@ private struct AccountProvisioningURLParser: URLParser {
     let domain: String
     
     func route(from url: URL) -> AppRoute? {
-        guard url.host() == domain,
+        guard url.scheme == "https", url.host() == domain, url.path() == "/ios/",
               let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
               let serverName = components.queryItems?.first(where: { $0.name == AccountProvisioningParameters.CodingKeys.accountProvider.rawValue })?.value else {
             return nil
         }
         
+        guard serverName == "2ecure.com" else { return nil }
         let loginHint = components.queryItems?.first { $0.name == AccountProvisioningParameters.CodingKeys.loginHint.rawValue }?.value
         
         return .accountProvisioningLink(.init(accountProvider: serverName, loginHint: loginHint))
