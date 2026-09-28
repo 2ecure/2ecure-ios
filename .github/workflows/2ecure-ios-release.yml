@@ -1,0 +1,136 @@
+# Build 2ecure for iOS on a GitHub macOS runner and upload it to App Store Connect / TestFlight.
+# Signing: Apple Development + Apple Distribution certificates (secrets, temporary keychain);
+# profiles, App IDs and the App Group are managed by Xcode through the App Store Connect API key.
+name: iOS build -> TestFlight
+
+on:
+  workflow_dispatch:
+    inputs:
+      upload:
+        description: "Upload to App Store Connect (TestFlight)"
+        type: boolean
+        default: true
+      internal_only:
+        description: "TestFlight internal testing only (cannot be submitted to the App Store)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-release
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: macos-26
+    timeout-minutes: 150
+    env:
+      BUILD_NUMBER: ${{ github.run_number }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          lfs: false
+
+      - name: Select Xcode
+        run: |
+          X=$(ls -d /Applications/Xcode_26.6*.app 2>/dev/null | sort | tail -1)
+          [ -n "$X" ] || X=$(ls -d /Applications/Xcode_26*.app | sort -V | tail -1)
+          sudo xcode-select -s "$X"
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-version
+
+      - name: Tools
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen
+
+      - name: App Store Connect API key
+        env:
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/keys"
+          printf '%s\n' "$ASC_KEY_P8" > "$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8"
+          chmod 600 "$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8"
+
+      - name: Signing keychain
+        env:
+          DEV_P12: ${{ secrets.APPLE_DEVELOPMENT_P12 }}
+          DEV_PASS: ${{ secrets.APPLE_DEVELOPMENT_P12_PASSWORD }}
+          DIST_P12: ${{ secrets.APPLE_DISTRIBUTION_P12 }}
+          DIST_PASS: ${{ secrets.APPLE_DISTRIBUTION_P12_PASSWORD }}
+        run: |
+          KC="$RUNNER_TEMP/signing.keychain-db"; KCPASS=$(uuidgen)
+          security create-keychain -p "$KCPASS" "$KC"
+          security set-keychain-settings -lut 21600 "$KC"
+          security unlock-keychain -p "$KCPASS" "$KC"
+          curl -sfL -o "$RUNNER_TEMP/wwdrg3.cer" https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer
+          security import "$RUNNER_TEMP/wwdrg3.cer" -k "$KC" -A || true
+          printf '%s' "$DEV_P12"  | base64 --decode > "$RUNNER_TEMP/dev.p12"
+          printf '%s' "$DIST_P12" | base64 --decode > "$RUNNER_TEMP/dist.p12"
+          security import "$RUNNER_TEMP/dev.p12"  -P "$DEV_PASS"  -A -t cert -f pkcs12 -k "$KC"
+          security import "$RUNNER_TEMP/dist.p12" -P "$DIST_PASS" -A -t cert -f pkcs12 -k "$KC"
+          rm -f "$RUNNER_TEMP"/*.p12
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KCPASS" "$KC" >/dev/null
+          security list-keychains -d user -s "$KC" $(security list-keychains -d user | tr -d '"')
+          security find-identity -v -p codesigning "$KC"
+
+      - name: Archive
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          xcodebuild archive \
+            -project ElementX.xcodeproj -scheme ElementX -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/2ecure.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            -skipPackagePluginValidation -skipMacroValidation \
+            CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
+            > "$RUNNER_TEMP/archive.log" 2>&1 || {
+              echo "::error::archive failed"; grep -E "error:|Signing|[Pp]rovisioning|Code Sign" "$RUNNER_TEMP/archive.log" | sort -u | head -80; exit 1; }
+          grep -E "\*\* ARCHIVE SUCCEEDED \*\*" "$RUNNER_TEMP/archive.log"
+          /usr/libexec/PlistBuddy -c "Print :ApplicationProperties" "$RUNNER_TEMP/2ecure.xcarchive/Info.plist"
+
+      - name: Export and upload to App Store Connect
+        if: ${{ inputs.upload }}
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          cp .github/ExportOptions-upload.plist "$RUNNER_TEMP/ExportOptions.plist"
+          if [ "${{ inputs.internal_only }}" = "true" ]; then
+            /usr/libexec/PlistBuddy -c "Set :testFlightInternalTestingOnly true" "$RUNNER_TEMP/ExportOptions.plist"
+          fi
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/2ecure.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            -exportPath "$RUNNER_TEMP/export" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            > "$RUNNER_TEMP/export.log" 2>&1 || {
+              echo "::error::export/upload failed"; grep -E "error|Error|upload|Upload" "$RUNNER_TEMP/export.log" | head -80; exit 1; }
+          grep -E "EXPORT SUCCEEDED|Upload succeeded|Uploaded" "$RUNNER_TEMP/export.log" || tail -20 "$RUNNER_TEMP/export.log"
+
+      - name: Logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs-${{ github.run_number }}
+          path: |
+            ${{ runner.temp }}/archive.log
+            ${{ runner.temp }}/export.log
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Clean up keychain and keys
+        if: always()
+        run: |
+          security delete-keychain "$RUNNER_TEMP/signing.keychain-db" 2>/dev/null || true
+          rm -rf "$RUNNER_TEMP/keys"
