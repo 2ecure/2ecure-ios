@@ -107,7 +107,7 @@ final class ElementCallManager: NSObject, ElementCallManagerProtocol, PKPushRegi
             configuration.supportsVideo = true
             configuration.includesCallsInRecents = true
             
-            if let callKitIcon = UIImage(named: "images/app-logo") {
+            if let callKitIcon = UIImage(named: "images/callkit-icon") {
                 configuration.iconTemplateImageData = callKitIcon.pngData()
             }
             
