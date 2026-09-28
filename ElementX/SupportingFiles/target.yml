@@ -141,6 +141,12 @@ targets:
         SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
         OTHER_SWIFT_FLAGS:
         - "-DIS_MAIN_APP"
+      configs:
+        Release:
+          # 2ecure CI: manual signing with the App Store profiles fetched by .github/scripts/fetch_profiles.py
+          CODE_SIGN_STYLE: Manual
+          CODE_SIGN_IDENTITY: "Apple Distribution"
+          PROVISIONING_PROFILE_SPECIFIER: "2ecure App Store"
 
     preBuildScripts:
     - name: 🛠 SwiftGen

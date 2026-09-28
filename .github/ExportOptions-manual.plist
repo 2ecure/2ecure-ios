@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>method</key><string>app-store-connect</string>
+    <key>destination</key><string>export</string>
+    <key>teamID</key><string>MM9XRXXHGR</string>
+    <key>signingStyle</key><string>manual</string>
+    <key>signingCertificate</key><string>Apple Distribution</string>
+    <key>provisioningProfiles</key>
+    <dict>
+        <key>com.2ecure.chat</key><string>2ecure App Store</string>
+        <key>com.2ecure.chat.nse</key><string>2ecure NSE App Store</string>
+        <key>com.2ecure.chat.ShareExtension</key><string>2ecure Share App Store</string>
+    </dict>
+    <key>manageAppVersionAndBuildNumber</key><false/>
+    <key>stripSwiftSymbols</key><true/>
+    <key>uploadSymbols</key><true/>
+    <key>testFlightInternalTestingOnly</key><false/>
+</dict>
+</plist>

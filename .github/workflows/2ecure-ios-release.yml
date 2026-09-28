@@ -1,6 +1,7 @@
 # Build 2ecure for iOS on a GitHub macOS runner and upload it to App Store Connect / TestFlight.
-# Signing: Apple Development + Apple Distribution certificates (secrets, temporary keychain);
-# profiles, App IDs and the App Group are managed by Xcode through the App Store Connect API key.
+# Signing: Apple Distribution certificate (secret, temporary keychain) + App Store profiles fetched via the
+# App Store Connect API; manual signing (Release settings in the target.yml files). Upload with altool + API key.
+# (Xcode 26.6's automatic-provisioning login failed on the runner with the same key: 2026-09-28.)
 name: iOS build -> TestFlight
 
 on:
@@ -55,6 +56,14 @@ jobs:
           mkdir -p "$RUNNER_TEMP/keys"
           printf '%s\n' "$ASC_KEY_P8" > "$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8"
           chmod 600 "$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8"
+          mkdir -p ~/.appstoreconnect/private_keys
+          cp "$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8" ~/.appstoreconnect/private_keys/
+
+      - name: Provisioning profiles (App Store Connect API)
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: ASC_KEY_PATH="$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8" python3 .github/scripts/fetch_profiles.py
 
       - name: Signing keychain
         env:
@@ -87,9 +96,6 @@ jobs:
             -project ElementX.xcodeproj -scheme ElementX -configuration Release \
             -destination 'generic/platform=iOS' \
             -archivePath "$RUNNER_TEMP/2ecure.xcarchive" \
-            -allowProvisioningUpdates \
-            -authenticationKeyPath "$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8" \
-            -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
             -skipPackagePluginValidation -skipMacroValidation \
             CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
             > "$RUNNER_TEMP/archive.log" 2>&1 || {
@@ -97,13 +103,9 @@ jobs:
           grep -E "\*\* ARCHIVE SUCCEEDED \*\*" "$RUNNER_TEMP/archive.log"
           /usr/libexec/PlistBuddy -c "Print :ApplicationProperties" "$RUNNER_TEMP/2ecure.xcarchive/Info.plist"
 
-      - name: Export and upload to App Store Connect
-        if: ${{ inputs.upload }}
-        env:
-          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      - name: Export IPA (manual signing)
         run: |
-          cp .github/ExportOptions-upload.plist "$RUNNER_TEMP/ExportOptions.plist"
+          cp .github/ExportOptions-manual.plist "$RUNNER_TEMP/ExportOptions.plist"
           if [ "${{ inputs.internal_only }}" = "true" ]; then
             /usr/libexec/PlistBuddy -c "Set :testFlightInternalTestingOnly true" "$RUNNER_TEMP/ExportOptions.plist"
           fi
@@ -111,12 +113,19 @@ jobs:
             -archivePath "$RUNNER_TEMP/2ecure.xcarchive" \
             -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
             -exportPath "$RUNNER_TEMP/export" \
-            -allowProvisioningUpdates \
-            -authenticationKeyPath "$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8" \
-            -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
             > "$RUNNER_TEMP/export.log" 2>&1 || {
-              echo "::error::export/upload failed"; grep -E "error|Error|upload|Upload" "$RUNNER_TEMP/export.log" | head -80; exit 1; }
-          grep -E "EXPORT SUCCEEDED|Upload succeeded|Uploaded" "$RUNNER_TEMP/export.log" || tail -20 "$RUNNER_TEMP/export.log"
+              echo "::error::export failed"; grep -E "error|Error" "$RUNNER_TEMP/export.log" | head -60; exit 1; }
+          ls -la "$RUNNER_TEMP/export"
+
+      - name: Upload to App Store Connect (TestFlight)
+        if: ${{ inputs.upload }}
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          IPA=$(ls "$RUNNER_TEMP"/export/*.ipa | head -1)
+          xcrun altool --upload-app -f "$IPA" -t ios --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID" 2>&1 | tee "$RUNNER_TEMP/upload.log"
+          grep -q -E "UPLOAD SUCCEEDED|No errors uploading" "$RUNNER_TEMP/upload.log"
 
       - name: Logs
         if: always()
@@ -126,6 +135,7 @@ jobs:
           path: |
             ${{ runner.temp }}/archive.log
             ${{ runner.temp }}/export.log
+            ${{ runner.temp }}/upload.log
           if-no-files-found: ignore
           retention-days: 14
 

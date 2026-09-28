@@ -80,6 +80,12 @@ targets:
         SWIFT_APPROACHABLE_CONCURRENCY: YES
         OTHER_SWIFT_FLAGS:
         - "-DIS_NSE"
+      configs:
+        Release:
+          # 2ecure CI: manual signing with the App Store profiles fetched by .github/scripts/fetch_profiles.py
+          CODE_SIGN_STYLE: Manual
+          CODE_SIGN_IDENTITY: "Apple Distribution"
+          PROVISIONING_PROFILE_SPECIFIER: "2ecure NSE App Store"
 
     sources:
     - path: ../Sources
