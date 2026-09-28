@@ -215,6 +215,16 @@ struct SettingsScreen: View {
                     })
                     .accessibilityIdentifier(A11yIdentifiers.settingsScreen.logout)
             
+            if context.viewState.accountProfileURL != nil && !context.viewState.showAccountDeactivation {
+                ListRow(label: .action(title: L10n.actionDeleteAccount,
+                                       icon: \.delete,
+                                       role: .destructive),
+                        kind: .button {
+                            context.send(viewAction: .manageAccount(url: "https://account.2ecure.com/account/"))
+                        })
+                        .accessibilityIdentifier("settings-delete-account")
+            }
+
             if context.viewState.showAccountDeactivation {
                 ListRow(label: .action(title: L10n.actionDeleteAccount,
                                        icon: \.delete,
