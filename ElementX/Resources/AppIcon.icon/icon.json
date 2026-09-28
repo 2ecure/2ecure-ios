@@ -5,7 +5,7 @@
       "layers" : [
         {
           "glass" : false,
-          "image-name" : "AppIcon.png",
+          "image-name" : "Twoecure.svg",
           "name" : "AppIcon"
         }
       ],
