@@ -106,6 +106,11 @@ nonisolated class NotificationHandler {
     }
     
     private func discardNotification() {
+        guard NotificationFilteringPolicy.canFilterNotifications else {
+            contentHandler(NotificationFilteringPolicy.passiveContent(from: notificationContent))
+            return
+        }
+
         MXLog.info("\(tag) Discarding notification")
         
         let content = UNMutableNotificationContent()
@@ -210,6 +215,10 @@ nonisolated class NotificationHandler {
         // - the main app picks this up in `PKPushRegistry.didReceiveIncomingPushWith` and
         // `CXProvider.reportNewIncomingCall` to show the system UI and handle actions on it.
         // N.B. this flow works properly only when background processing capabilities are enabled
+        // Reporting encrypted VoIP pushes also requires Apple's filtering entitlement.
+        guard NotificationFilteringPolicy.canFilterNotifications else {
+            return .processedShouldDiscard
+        }
         guard notificationType == .ring else {
             MXLog.info("Non-ringing call notification, handling as push notification")
             return .shouldDisplay
