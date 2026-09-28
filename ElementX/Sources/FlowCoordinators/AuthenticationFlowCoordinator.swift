@@ -127,7 +127,7 @@ class AuthenticationFlowCoordinator: FlowCoordinatorProtocol {
         
         switch appRoute {
         case .accountProvisioningLink(let provisioningParameters):
-            guard appSettings.allowOtherAccountProviders else {
+            guard provisioningParameters.accountProvider == "2ecure.com" else {
                 MXLog.error("Provisioning links not allowed, ignoring.")
                 return
             }

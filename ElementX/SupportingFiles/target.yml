@@ -96,8 +96,8 @@ targets:
           location
         ]
         BGTaskSchedulerPermittedIdentifiers: [
-          io.element.elementx.background.refresh,
-          io.element.elementx.background.search-backfill
+          com.2ecure.chat.background.refresh,
+          com.2ecure.chat.background.search-backfill
         ]
         UTExportedTypeDeclarations:
         - UTTypeConformsTo: [public.text]
