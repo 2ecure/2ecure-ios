@@ -151,7 +151,7 @@ final nonisolated class AppSettings: @unchecked Sendable {
     private(set) var hideBrandChrome = false
     
     /// The task identifier used for background app refresh. Also used in main target's the Info.plist
-    let backgroundAppRefreshTaskIdentifier = "io.element.elementx.background.refresh"
+    let backgroundAppRefreshTaskIdentifier = "com.2ecure.chat.background.refresh"
     
     /// A URL where users can go read more about the app.
     private(set) var websiteURL: URL = "https://element.io"
@@ -180,7 +180,7 @@ final nonisolated class AppSettings: @unchecked Sendable {
     private(set) var accountProvisioningHost = "mobile.element.io"
     /// The App Store URL for Element Pro, shown to the user when a homeserver requires that app.
     /// **Note:** This property isn't overridable as it in unexpected for forks to come across the error (or to even have a "Pro" app).
-    let elementProAppStoreURL: URL = "https://apps.apple.com/app/element-pro-for-work/id6502951615"
+    let elementProAppStoreURL: URL = "https://2ecure.com/hilfe"
     
     @UserPreference(defaultValue: AppAppearance.system)
     var appAppearance: AppAppearance
@@ -234,7 +234,7 @@ final nonisolated class AppSettings: @unchecked Sendable {
     /// Whether or not the Create Account button is shown on the start screen.
     ///
     /// **Note:** Setting this to false doesn't prevent someone from creating an account when the selected homeserver's MAS allows registration.
-    let showCreateAccountButton = true
+    let showCreateAccountButton = false
     
     // MARK: - Notifications
     
