@@ -37,7 +37,7 @@ nonisolated extension RoomMemberProxyProtocol {
     }
     
     var permalink: URL? {
-        try? URL(string: matrixToUserPermalink(userId: userID))
+        try? URL(string: WebClientLinks.fromMatrixTo(matrixToUserPermalink(userId: userID)))
     }
     
     /// The name used for sorting the member alphabetically. This will be the displayname if,
