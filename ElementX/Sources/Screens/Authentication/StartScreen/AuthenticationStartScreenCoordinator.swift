@@ -18,6 +18,8 @@ struct AuthenticationStartScreenParameters {
     let appSettings: AppSettings
     let mediaProvider: MediaProviderProtocol?
     let userIndicatorController: UserIndicatorControllerProtocol
+    /// 2ecure: start the sign-in as soon as the screen can present it (opened through a provisioning link).
+    var signInImmediately = false
 }
 
 enum AuthenticationStartScreenCoordinatorAction {
@@ -49,7 +51,8 @@ final class AuthenticationStartScreenCoordinator: CoordinatorProtocol {
                                                        appMediator: parameters.appMediator,
                                                        appSettings: parameters.appSettings,
                                                        mediaProvider: parameters.mediaProvider,
-                                                       userIndicatorController: parameters.userIndicatorController)
+                                                       userIndicatorController: parameters.userIndicatorController,
+                                                       signInImmediately: parameters.signInImmediately)
     }
     
     // MARK: - Public
