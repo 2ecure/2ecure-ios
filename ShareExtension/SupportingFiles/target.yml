@@ -43,6 +43,9 @@ targets:
       path: Info.plist
       properties:
         CFBundleDisplayName: $(PRODUCT_DISPLAY_NAME)
+        # Without it Xcode uses PRODUCT_NAME (ElementX), which iOS shows in system prompts such as
+        # «"ElementX" Wants to Use "account.2ecure.com" to Sign In».
+        CFBundleName: $(PRODUCT_DISPLAY_NAME)
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         appGroupIdentifier: $(APP_GROUP_IDENTIFIER)
