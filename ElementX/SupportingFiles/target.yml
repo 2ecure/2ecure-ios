@@ -51,6 +51,9 @@ targets:
         UILaunchScreen:
           UIColorName: colors/background-color
         CFBundleDisplayName: $(APP_DISPLAY_NAME)
+        # Without it Xcode uses PRODUCT_NAME (ElementX), which iOS shows in system prompts such as
+        # «"ElementX" Wants to Use "account.2ecure.com" to Sign In».
+        CFBundleName: $(APP_DISPLAY_NAME)
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleURLTypes: [
