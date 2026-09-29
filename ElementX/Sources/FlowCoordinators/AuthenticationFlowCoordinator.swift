@@ -266,7 +266,9 @@ class AuthenticationFlowCoordinator: FlowCoordinatorProtocol {
                                                              appMediator: appMediator,
                                                              appSettings: appSettings,
                                                              mediaProvider: mediaProvider,
-                                                             userIndicatorController: userIndicatorController)
+                                                             userIndicatorController: userIndicatorController,
+                                                             // Only the provisioning-link route passes parameters here.
+                                                             signInImmediately: provisioningParameters != nil)
         let coordinator = AuthenticationStartScreenCoordinator(parameters: parameters)
         
         coordinator.actions

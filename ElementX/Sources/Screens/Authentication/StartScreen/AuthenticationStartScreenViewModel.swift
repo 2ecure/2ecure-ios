@@ -18,6 +18,8 @@ class AuthenticationStartScreenViewModel: AuthenticationStartScreenViewModelType
     private let userIndicatorController: UserIndicatorControllerProtocol
     
     private let canReportProblem: Bool
+    /// 2ecure: a provisioning link (account pages, invitations) goes straight into the sign-in, once.
+    private var signInImmediately: Bool
     
     private var actionsSubject: PassthroughSubject<AuthenticationStartScreenViewModelAction, Never> = .init()
     
@@ -32,11 +34,13 @@ class AuthenticationStartScreenViewModel: AuthenticationStartScreenViewModelType
          appSettings: AppSettings,
          mediaProvider: MediaProviderProtocol?,
          notificationCenter: NotificationCenter = .default,
-         userIndicatorController: UserIndicatorControllerProtocol) {
+         userIndicatorController: UserIndicatorControllerProtocol,
+         signInImmediately: Bool = false) {
         self.authenticationService = authenticationService
         self.provisioningParameters = provisioningParameters
         self.appMediator = appMediator
         self.userIndicatorController = userIndicatorController
+        self.signInImmediately = signInImmediately
         canReportProblem = isBugReportServiceEnabled
         
         let isQRCodeScanningSupported = !ProcessInfo.processInfo.isiOSAppOnMac
@@ -84,6 +88,11 @@ class AuthenticationStartScreenViewModel: AuthenticationStartScreenViewModelType
         case .updateWindow(let window):
             guard state.window != window else { return }
             state.window = window
+            // The window is the OAuth presentation anchor, so the sign-in can start from here on.
+            if signInImmediately {
+                signInImmediately = false
+                Task { await login() }
+            }
         case .reportProblem:
             if canReportProblem {
                 actionsSubject.send(.reportProblem)
