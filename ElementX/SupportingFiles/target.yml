@@ -118,6 +118,7 @@ targets:
         aps-environment: development
         com.apple.developer.associated-domains:
         - applinks:2ecure.com
+        - applinks:chat.2ecure.com
         - webcredentials:2ecure.com
         com.apple.developer.usernotifications.communication: true
         com.apple.security.app-sandbox: true
