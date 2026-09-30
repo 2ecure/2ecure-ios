@@ -476,6 +476,11 @@ private struct NavigationTabCoordinatorView<Tag: Hashable>: View {
         standardAppearance.stackedLayoutAppearance.normal.badgeBackgroundColor = .compound.iconAccentPrimary // iPhone Portrait
         standardAppearance.compactInlineLayoutAppearance.normal.badgeBackgroundColor = .compound.iconAccentPrimary // iPhone Landscape
         standardAppearance.inlineLayoutAppearance.normal.badgeBackgroundColor = .compound.iconAccentPrimary // iPadOS 17 (doesn't work for 18+)
+        // 2ecure: the accent is near-white in dark mode (DefaultCompoundHook), so the count cannot stay UIKit's white.
+        let badgeText: [NSAttributedString.Key: Any] = [.foregroundColor: UIColor.compound.iconOnSolidPrimary]
+        standardAppearance.stackedLayoutAppearance.normal.badgeTextAttributes = badgeText
+        standardAppearance.compactInlineLayoutAppearance.normal.badgeTextAttributes = badgeText
+        standardAppearance.inlineLayoutAppearance.normal.badgeTextAttributes = badgeText
         tabBarController.tabBar.standardAppearance = standardAppearance
     }
 }

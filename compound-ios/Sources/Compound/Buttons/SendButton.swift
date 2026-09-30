@@ -29,7 +29,9 @@ public struct SendButton: View {
     
     private var iconColor: Color {
         guard isEnabled else { return .compound.iconQuaternary }
-        return colorScheme == .light ? .compound.iconOnSolidPrimary : .compound.iconPrimary
+        // 2ecure: the accent is near-white in dark mode (DefaultCompoundHook), so iconPrimary would vanish on it.
+        // The "on solid" colour is white on the light appearance's near-black and near-black on the dark one's near-white.
+        return .compound.iconOnSolidPrimary
     }
     
     private var backgroundColor: Color {
