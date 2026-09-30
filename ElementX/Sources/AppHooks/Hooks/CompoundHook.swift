@@ -8,6 +8,7 @@
 
 import Compound
 import SwiftUI
+import UIKit
 
 nonisolated protocol CompoundHookProtocol: Sendable {
     @MainActor func override(colors: CompoundColors, uiColors: CompoundUIColors)
@@ -17,7 +18,7 @@ nonisolated protocol CompoundHookProtocol: Sendable {
 /// text, icons and actions, and its green gradients become solid or grey, so both appearances stay consistent.
 /// Success, critical and info colours are unchanged. Android applies the same mapping in DefaultEnterpriseService.
 struct DefaultCompoundHook: CompoundHookProtocol {
-    func override(colors: CompoundColors, uiColors: CompoundUIColors) {
+    @MainActor func override(colors: CompoundColors, uiColors: CompoundUIColors) {
         colors.override(\.bgAccentRest, with: colors.bgActionPrimaryRest)
         uiColors.override(\.bgAccentRest, with: uiColors.bgActionPrimaryRest)
         colors.override(\.bgAccentSelected, with: colors.bgActionSecondaryPressed)
@@ -49,5 +50,9 @@ struct DefaultCompoundHook: CompoundHookProtocol {
         colors.override(\.gradientSubtleStop3, with: colors.bgActionSecondaryHovered.opacity(0.66))
         colors.override(\.gradientSubtleStop4, with: colors.bgActionSecondaryHovered.opacity(0.33))
         colors.override(\.gradientSubtleStop5, with: colors.bgActionSecondaryHovered.opacity(0.15))
+
+        // Switches: their "on" track is the accent, near-white in dark mode, so iOS's white knob vanished on it.
+        // The knob takes the "on solid" colour instead: white in light mode as before, near-black in dark mode.
+        UISwitch.appearance().thumbTintColor = uiColors.iconOnSolidPrimary
     }
 }
