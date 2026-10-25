@@ -1,0 +1,175 @@
+//
+// Copyright 2025 Element Creations Ltd.
+// Copyright 2022-2025 New Vector Ltd.
+//
+// SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-Element-Commercial.
+// Please see LICENSE files in the repository root for full details.
+//
+
+import Foundation
+import MatrixRustSDK
+
+class UserSessionStore: UserSessionStoreProtocol {
+    private let keychainController: KeychainControllerProtocol
+    private let clientFactory: ClientFactoryProtocol
+    private let appSettings: AppSettings
+    private let analyticsService: AnalyticsServiceProtocol
+    private let networkMonitor: NetworkMonitorProtocol
+    private let appHooks: AppHooks
+    
+    /// Whether or not there are sessions in the store.
+    var hasSessions: Bool {
+        !keychainController.restorationTokens().isEmpty
+    }
+    
+    /// All the user IDs managed by the store.
+    var userIDs: [String] {
+        keychainController.restorationTokens().map(\.userID)
+    }
+    
+    var clientSessionDelegate: ClientSessionDelegate {
+        keychainController
+    }
+    
+    init(keychainController: KeychainControllerProtocol,
+         clientFactory: ClientFactoryProtocol = ClientFactory(),
+         appSettings: AppSettings,
+         analyticsService: AnalyticsServiceProtocol,
+         appHooks: AppHooks,
+         networkMonitor: NetworkMonitorProtocol) {
+        self.keychainController = keychainController
+        self.clientFactory = clientFactory
+        self.appSettings = appSettings
+        self.analyticsService = analyticsService
+        self.appHooks = appHooks
+        self.networkMonitor = networkMonitor
+    }
+    
+    /// Deletes all data stored in the shared container and keychain
+    func reset() {
+        MXLog.warning("Resetting the UserSessionStore. All accounts will be affected.")
+        try? FileManager.default.removeItem(at: .sessionsBaseDirectory)
+        keychainController.removeAllRestorationTokens()
+    }
+    
+    func restoreUserSession(userID: String) async -> Result<UserSessionProtocol, UserSessionStoreError> {
+        guard let credentials = keychainController.restorationTokens().first(where: { $0.userID == userID }) else {
+            return .failure(.unknownAccount)
+        }
+        
+        let userSettings = appHooks.userSessionHook.configure(appSettings.userSettings(for: credentials.userID),
+                                                              forHomeserver: credentials.restorationToken.session.homeserverUrl)
+        
+        switch await restorePreviousLogin(credentials, userSettings: userSettings) {
+        case .success(let clientProxy):
+            return await .success(buildUserSessionWithClient(clientProxy, userSettings: userSettings))
+        case .failure(let error):
+            MXLog.error("Failed restoring login with error: \(error)")
+            
+            // On any restoration failure reset the token and restart
+            keychainController.removeRestorationTokenForUsername(credentials.userID)
+            do {
+                try credentials.restorationToken.sessionDirectories.delete()
+            } catch {
+                fatalError("Failed deleting session directories with error \(error)")
+            }
+            
+            return .failure(error)
+        }
+    }
+    
+    func userSession(for client: ClientProtocol, sessionDirectories: SessionDirectories, passphrase: Data) async -> Result<UserSessionProtocol, UserSessionStoreError> {
+        do {
+            let session = try client.session()
+            let userID = try client.userId()
+            let userSettings = appHooks.userSessionHook.configure(appSettings.userSettings(for: userID), forHomeserver: client.homeserver())
+            let clientProxy = try await setupProxyForClient(client, userSettings: userSettings)
+            
+            keychainController.setRestorationToken(RestorationToken(session: session,
+                                                                    sessionDirectories: sessionDirectories,
+                                                                    passphrase: passphrase,
+                                                                    pusherNotificationClientIdentifier: clientProxy.pusherNotificationClientIdentifier),
+                                                   forUsername: userID)
+            
+            MXLog.info("Set up session for user \(userID) at: \(sessionDirectories)")
+            
+            return await .success(buildUserSessionWithClient(clientProxy, userSettings: userSettings))
+        } catch {
+            MXLog.error("Failed creating user session with error: \(error)")
+            return .failure(.failedSettingUpSession)
+        }
+    }
+    
+    func logout(userSession: UserSessionProtocol) {
+        let userID = userSession.clientProxy.userID
+        let credentials = keychainController.restorationTokens().first { $0.userID == userID }
+        keychainController.removeRestorationTokenForUsername(userID)
+        
+        if let credentials {
+            try? credentials.restorationToken.sessionDirectories.delete()
+        }
+    }
+    
+    // MARK: - Private
+    
+    private func buildUserSessionWithClient(_ clientProxy: ClientProxyProtocol, userSettings: UserSettings) async -> UserSessionProtocol {
+        let mediaProvider = MediaProvider(mediaLoader: clientProxy.mediaLoader,
+                                          imageCache: .onlyInMemory,
+                                          homeserverReachabilityPublisher: clientProxy.homeserverReachabilityPublisher)
+        
+        let voiceMessageMediaManager = VoiceMessageMediaManager(mediaProvider: mediaProvider)
+        
+        let liveLocationService = LiveLocationService(clientProxy: clientProxy, userSettings: userSettings)
+        
+        let notificationService = NotificationService(clientProxy: clientProxy, userSettings: userSettings)
+        
+        return UserSession(clientProxy: clientProxy,
+                           userSettings: userSettings,
+                           userHooks: appHooks.userSessionHook.makeUserHooks(for: clientProxy),
+                           mediaProvider: mediaProvider,
+                           voiceMessageMediaManager: voiceMessageMediaManager,
+                           liveLocationService: liveLocationService,
+                           notificationService: notificationService)
+    }
+    
+    private func restorePreviousLogin(_ credentials: KeychainCredentials, userSettings: UserSettings) async -> Result<ClientProxyProtocol, UserSessionStoreError> {
+        guard credentials.restorationToken.sessionDirectories.isNonTransientUserDataValid() else {
+            MXLog.error("Failed restoring login, missing non-transient user data")
+            return .failure(.failedRestoringLogin)
+        }
+        
+        appHooks.remoteSettingsHook.loadCache(forHomeserver: credentials.restorationToken.session.homeserverUrl, applyingTo: appSettings)
+        
+        do {
+            let client = try await clientFactory.makeAppClient(credentials: credentials,
+                                                               clientSessionDelegate: keychainController,
+                                                               appSettings: appSettings,
+                                                               appHooks: appHooks)
+            
+            MXLog.info("Set up session for user \(credentials.userID) at: \(credentials.restorationToken.sessionDirectories)")
+            
+            Task(priority: .low) { await appHooks.remoteSettingsHook.updateCache(using: client) }
+            
+            return try await .success(setupProxyForClient(client, userSettings: userSettings))
+        } catch UserSessionStoreError.failedSettingUpClientProxy(let error) {
+            // If this has failed, there is likely something wrong with the creation of the sync service
+            // There is nothing we can do, but at the same time we don't want the user to the get logged out
+            // So it's better to crash here and let the app restart
+            fatalError("Failed setting up the client proxy with error: \(error)")
+        } catch {
+            MXLog.error("Failed restoring login with error: \(error)")
+            return .failure(.failedRestoringLogin)
+        }
+    }
+    
+    private func setupProxyForClient(_ client: ClientProtocol, userSettings: UserSettings) async throws -> ClientProxyProtocol {
+        do {
+            return try await ClientProxy(client: client,
+                                         networkMonitor: networkMonitor,
+                                         userSettings: userSettings,
+                                         analyticsService: analyticsService)
+        } catch {
+            throw UserSessionStoreError.failedSettingUpClientProxy(error)
+        }
+    }
+}
