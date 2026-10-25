@@ -95,8 +95,7 @@ targets:
           audio,
           fetch,
           processing,
-          voip,
-          location
+          voip
         ]
         BGTaskSchedulerPermittedIdentifiers: [
           com.2ecure.chat.background.refresh,
