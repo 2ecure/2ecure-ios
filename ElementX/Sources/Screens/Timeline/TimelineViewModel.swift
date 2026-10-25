@@ -55,6 +55,9 @@ class TimelineViewModel: TimelineViewModelType, TimelineViewModelProtocol {
     private var playedReactionEffects: Set<ReactionSender> = []
     @CancellableTask private var pendingReactionEffectTask: Task<Void, Never>?
     
+    // 2ecure: Swift 6.3.3 (Xcode 26.6) crashes optimising this initialiser (SIL ownership verifier after
+    // CopyPropagation); upstream builds with Xcode 27. Unoptimised, it compiles. Drop this once we build with Xcode 27.
+    @_optimize(none)
     init(roomProxy: JoinedRoomProxyProtocol,
          focussedEventID: String? = nil,
          timelineController: TimelineControllerProtocol,
