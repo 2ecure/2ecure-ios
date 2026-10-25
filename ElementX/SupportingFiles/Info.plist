@@ -83,7 +83,6 @@
 		<string>fetch</string>
 		<string>processing</string>
 		<string>voip</string>
-		<string>location</string>
 	</array>
 	<key>UILaunchScreen</key>
 	<dict>
