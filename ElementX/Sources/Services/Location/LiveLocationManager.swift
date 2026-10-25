@@ -38,8 +38,12 @@ final class LiveLocationManager: NSObject, LiveLocationManagerProtocol, CLLocati
         
         // Configure CLLocationManager for continuous background tracking.
         self.locationManager.delegate = self
-        self.locationManager.allowsBackgroundLocationUpdates = true
-        self.locationManager.showsBackgroundLocationIndicator = true
+        // 2ecure: no location sharing (no map tiles), so the app declares no «location» background mode
+        // (App Review guideline 2.5.4), and setting allowsBackgroundLocationUpdates without it raises an exception.
+        if Self.declaresLocationBackgroundMode {
+            self.locationManager.allowsBackgroundLocationUpdates = true
+            self.locationManager.showsBackgroundLocationIndicator = true
+        }
         
         // Since unpausing location updates is not trivial, let's always keep the location updates running
         // The distance filtering will already take care of not sending updates when not required.
@@ -48,6 +52,10 @@ final class LiveLocationManager: NSObject, LiveLocationManagerProtocol, CLLocati
         
         setupMinimumDistanceUpdatesAndAccuracy(minimumDistance: appSettings.liveLocationMinimumDistanceUpdate)
         setupSubscriptions()
+    }
+    
+    private static var declaresLocationBackgroundMode: Bool {
+        (Bundle.main.object(forInfoDictionaryKey: "UIBackgroundModes") as? [String] ?? []).contains("location")
     }
     
     // MARK: - LiveLocationManagerProtocol
