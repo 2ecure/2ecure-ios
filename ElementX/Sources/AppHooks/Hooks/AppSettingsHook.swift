@@ -18,7 +18,9 @@ struct DefaultAppSettingsHook: AppSettingsHookProtocol {
                              allowOtherAccountProviders: false,
                              hideBrandChrome: true,
                              pushGatewayBaseURL: "https://push.2ecure.com",
-                             oAuthRedirectURL: "https://2ecure.com/oauth/ios/com.2ecure.chat",
+                             // 2ecure: a custom scheme (reverse DNS of 2ecure.com, as MAS requires): an https callback needs iOS
+                             // to have verified the webcredentials association, and App Review's iPad refused it (2026-10-30).
+                             oAuthRedirectURL: "com.2ecure.chat:/oauth/callback",
                              oAuthClientURIPath: nil,
                              websiteURL: "https://2ecure.com",
                              logoURL: "https://2ecure.com/logo-512.png",
