@@ -97,7 +97,7 @@ class OAuthAuthenticationPresenter: NSObject {
             let errorDescription = response.error.map(String.init(describing:)) ?? "Unknown error"
             MXLog.error("Missing callback URL from the web authentication session: \(errorDescription)")
             
-            showFailureIndicator()
+            showFailureIndicator(error: response.error)
             await authenticationService.abortOAuthLogin(data: oAuthData)
             return .failure(.oAuthError(.unknown))
         }
@@ -155,10 +155,16 @@ class OAuthAuthenticationPresenter: NSObject {
         userIndicatorController.retractIndicatorWithId(loadingIndicatorID)
     }
     
-    private func showFailureIndicator() {
+    private func showFailureIndicator(error: Error? = nil) {
+        // 2ecure: name the system's error, so a screenshot of a sign-in that never opened shows why (App Review).
+        let title = error.map { error in
+            let nsError = error as NSError
+            let domain = nsError.domain == ASWebAuthenticationSessionErrorDomain ? "WAS" : nsError.domain
+            return "\(L10n.errorUnknown) (\(domain) \(nsError.code))"
+        } ?? L10n.errorUnknown
         userIndicatorController.submitIndicator(UserIndicator(id: failureIndicatorID,
                                                               type: .toast,
-                                                              title: L10n.errorUnknown,
+                                                              title: title,
                                                               icon: \.close))
     }
 }
