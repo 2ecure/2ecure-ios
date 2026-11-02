@@ -1491,12 +1491,14 @@ private struct ClientProxyServices {
         Task { [roomSummaryProvider, alternateRoomSummaryProvider, staticRoomSummaryProvider] in
             // Wait for actual content (or a loaded-but-empty account) as the loading state
             // doesn't take into account the app having build and published any summaries.
-            for await rooms in roomSummaryProvider.roomListPublisher.values {
+            // 2ecure: also wake on state changes: a new account's empty list doesn't publish again once loaded, so
+            // the static provider was never set and `roomForIdentifier` waited forever (endless spinner, 2026-11-02).
+            for await (rooms, state) in roomSummaryProvider.roomListPublisher.combineLatest(roomSummaryProvider.statePublisher).values {
                 if !rooms.isEmpty {
                     break
                 }
-                
-                if case .loaded(0) = roomSummaryProvider.statePublisher.value {
+
+                if case .loaded(0) = state {
                     break
                 }
             }
