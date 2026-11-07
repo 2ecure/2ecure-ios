@@ -1,0 +1,291 @@
+//
+// Copyright 2025 Element Creations Ltd.
+// Copyright 2022-2025 New Vector Ltd.
+//
+// SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-Element-Commercial.
+// Please see LICENSE files in the repository root for full details.
+//
+
+import Compound
+import SwiftUI
+
+struct TimelineReactionsView: View {
+    private let feedbackGenerator = UIImpactFeedbackGenerator(style: .heavy)
+    @Environment(\.layoutDirection) private var layoutDirection: LayoutDirection
+    
+    let context: TimelineViewModel.Context
+    let itemID: TimelineItemIdentifier
+    let reactions: [AggregatedReaction]
+    let isLayoutRTL: Bool
+    
+    private var collapsed: Binding<Bool>
+    
+    init(context: TimelineViewModel.Context,
+         itemID: TimelineItemIdentifier,
+         reactions: [AggregatedReaction],
+         isLayoutRTL: Bool = false) {
+        self.context = context
+        self.itemID = itemID
+        self.reactions = reactions
+        self.isLayoutRTL = isLayoutRTL
+        
+        collapsed = Binding(get: {
+            context.reactionsCollapsed[itemID] ?? true
+        }, set: {
+            context.reactionsCollapsed[itemID] = $0
+        })
+    }
+    
+    var reactionsLayoutDirection: LayoutDirection {
+        guard isLayoutRTL else { return layoutDirection }
+        return layoutDirection == .leftToRight ? .rightToLeft : .leftToRight
+    }
+    
+    var body: some View {
+        layout {
+            ForEach(reactions) { reaction in
+                TimelineReactionButton(reaction: reaction, mediaProvider: context.mediaProvider) { key in
+                    feedbackGenerator.impactOccurred()
+                    context.send(viewAction: .toggleReaction(key: key, itemID: itemID))
+                } showReactionSummary: { key in
+                    context.send(viewAction: .displayReactionSummary(itemID: itemID, key: key))
+                }
+                .background { reactionEffectTrigger(for: reaction) }
+                .reactionLayoutItem(.reaction)
+                .environment(\.layoutDirection, layoutDirection)
+            }
+            
+            if isCollapsible {
+                Button {
+                    collapsed.wrappedValue.toggle()
+                } label: {
+                    TimelineCollapseButtonLabel(collapsed: collapsed.wrappedValue)
+                        .transaction { $0.animation = nil }
+                }
+                .reactionLayoutItem(.expandCollapse)
+                .environment(\.layoutDirection, layoutDirection)
+            }
+            
+            Button {
+                context.send(viewAction: .displayEmojiPicker(itemID: itemID))
+            } label: {
+                TimelineReactionAddMoreButtonLabel()
+            }
+            .reactionLayoutItem(.addMore)
+        }
+        .environment(\.layoutDirection, reactionsLayoutDirection)
+        .animation(.easeInOut(duration: 0.1).disabledDuringTests(), value: reactions)
+        .padding(.leading, 4)
+    }
+    
+    // MARK: - Private
+    
+    @ViewBuilder
+    private func reactionEffectTrigger(for reaction: AggregatedReaction) -> some View {
+        // The unique ID survives the local echo being replaced by the remote one.
+        if let pendingReactionEffect = context.viewState.pendingReactionEffect,
+           pendingReactionEffect.itemID.uniqueID == itemID.uniqueID,
+           pendingReactionEffect.key == reaction.key {
+            ReactionEffectTrigger(context: context)
+        }
+    }
+    
+    private var isCollapsible: Bool {
+        reactions.count > 5
+    }
+    
+    private var layout: AnyLayout {
+        if isCollapsible {
+            return AnyLayout(CollapsibleReactionLayout(itemSpacing: 4,
+                                                       rowSpacing: 4,
+                                                       collapsed: collapsed.wrappedValue,
+                                                       rowsBeforeCollapsible: 2))
+        }
+        
+        return AnyLayout(HStackLayout(spacing: 4.0))
+    }
+}
+
+/// The pill shape for the label that surrounds both the reaction and collapse buttons.
+/// Reports a reaction's position once it has settled on screen so that its effect can play from it.
+private struct ReactionEffectTrigger: View {
+    let context: TimelineViewModel.Context
+    
+    @State private var frame = CGRect.zero
+    
+    var body: some View {
+        Color.clear
+            .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { frame = $0 }
+            .task {
+                // Lets the cell finish resizing and any sheet the reaction was picked from finish dismissing.
+                guard await (try? Task.sleep(for: .milliseconds(500))) != nil else { return }
+                
+                // Collapsed reactions are hidden at `CollapsibleReactionLayout.pointOffscreen`, far above the screen.
+                let origin = frame.maxY < 0 ? nil : CGPoint(x: frame.midX, y: frame.midY)
+                context.send(viewAction: .playReactionEffect(origin: origin))
+            }
+    }
+}
+
+struct TimelineReactionButtonLabel<Content: View>: View {
+    var isHighlighted = false
+    @ViewBuilder var content: () -> Content
+    
+    var body: some View {
+        content()
+            .background(backgroundShape.inset(by: 1).fill(overlayBackgroundColor))
+            .overlay(backgroundShape.inset(by: 2.0).strokeBorder(overlayBorderColor))
+            .overlay(backgroundShape.strokeBorder(Color.compound.bgCanvasDefault, lineWidth: 2))
+            .accessibilityElement(children: .combine)
+    }
+    
+    var backgroundShape: some InsettableShape {
+        RoundedRectangle(cornerRadius: 14, style: .continuous)
+    }
+    
+    var overlayBackgroundColor: Color {
+        isHighlighted ? Color.compound.bgSubtlePrimary : .compound.bgSubtleSecondary
+    }
+    
+    var overlayBorderColor: Color {
+        isHighlighted ? Color.compound.borderInteractivePrimary : .clear
+    }
+}
+
+struct TimelineCollapseButtonLabel: View {
+    var collapsed: Bool
+    @ScaledMetric(relativeTo: .subheadline) private var lineHeight = 20
+    
+    var body: some View {
+        TimelineReactionButtonLabel {
+            Text(collapsed ? L10n.screenRoomTimelineReactionsShowMore : L10n.screenRoomTimelineReactionsShowLess)
+                .frame(height: lineHeight, alignment: .center)
+                .padding(.vertical, 6)
+                .padding(.horizontal, 12)
+                .font(.compound.bodyMD)
+                .foregroundColor(.compound.textPrimary)
+        }
+    }
+}
+
+struct TimelineReactionButton: View {
+    let reaction: AggregatedReaction
+    let mediaProvider: MediaProviderProtocol?
+    let toggleReaction: (String) -> Void
+    let showReactionSummary: (String) -> Void
+    @ScaledMetric(relativeTo: .subheadline) private var lineHeight = 20
+    
+    private var accessibilityLabel: String {
+        if reaction.isHighlighted {
+            return reaction.count > 1 ? L10n.tr("Localizable", "screen_room_timeline_reaction_including_you_a11y", reaction.count - 1, reaction.displayKey) : L10n.screenRoomTimelineReactionYouA11y(reaction.displayKey)
+        }
+        return L10n.tr("Localizable", "screen_room_timeline_reaction_a11y", reaction.count, reaction.displayKey)
+    }
+    
+    private var toggleReactionAccessibilityActionName: String {
+        reaction.isHighlighted ? L10n.a11yRemoveReaction(reaction.displayKey) : L10n.a11yAddReaction(reaction.displayKey)
+    }
+    
+    var body: some View {
+        label
+            .onTapGesture {
+                toggleReaction(reaction.key)
+            }
+            .longPressWithFeedback {
+                showReactionSummary(reaction.key)
+            }
+            .accessibilityAddTraits(.isButton)
+            .accessibilityLabel(accessibilityLabel)
+            .accessibilityHint(toggleReactionAccessibilityActionName)
+            .accessibilityAction(named: L10n.screenRoomTimelineReactionsShowReactionsSummary) {
+                showReactionSummary(reaction.key)
+            }
+    }
+    
+    var label: some View {
+        TimelineReactionButtonLabel(isHighlighted: reaction.isHighlighted) {
+            HStack(spacing: 4) {
+                // Designs have bodyMD for the key but practically this makes
+                // emojis too big. bodySM gives a more appropriate size when compared
+                // to the count text and the lineHeight/padding in the designs.
+                ReactionKeyView(reaction: reaction, mediaProvider: mediaProvider, size: lineHeight)
+                    .font(.compound.bodySM)
+                Text(String(reaction.count))
+                    .font(.compound.bodyMD)
+                    .foregroundColor(textColor)
+            }
+            .frame(height: lineHeight, alignment: .center)
+            .padding(.vertical, 6)
+            .padding(.horizontal, 12)
+        }
+    }
+    
+    var textColor: Color {
+        reaction.isHighlighted ? Color.compound.textPrimary : .compound.textSecondary
+    }
+}
+
+/// Shows a reaction's key, or its custom image when the key is an `mxc://` URI.
+struct ReactionKeyView: View {
+    let reaction: AggregatedReaction
+    let mediaProvider: MediaProviderProtocol?
+    let size: CGFloat
+    
+    var body: some View {
+        // Reaction keys carry no mimetype, so always hint `image/gif` to take LoadableImage's animated path. Kingfisher sniffs the actual format, so static images still render (full size, no thumbnail).
+        if let imageURL = reaction.imageURL, let mediaSource = try? MediaSourceProxy(url: imageURL, mimeType: "image/gif") {
+            LoadableImage(mediaSource: mediaSource,
+                          size: CGSize(width: size, height: size),
+                          mediaProvider: mediaProvider,
+                          transformer: { $0.scaledToFit() },
+                          placeholder: { Color.clear })
+                .frame(width: size, height: size)
+        } else {
+            Text(reaction.displayKey)
+        }
+    }
+}
+
+struct TimelineReactionAddMoreButtonLabel: View {
+    var body: some View {
+        TimelineReactionButtonLabel {
+            CompoundIcon(\.reactionAdd, size: .xSmall, relativeTo: .compound.bodySM)
+                .padding(.vertical, 8)
+                .padding(.horizontal, 12)
+                .foregroundColor(.compound.iconSecondary)
+                .accessibilityLabel(L10n.actionReact)
+        }
+    }
+}
+
+struct TimelineReactionViewPreviewsContainer: View {
+    var body: some View {
+        VStack(spacing: 8) {
+            TimelineReactionsView(context: TimelineViewModel.mock.context,
+                                  itemID: .randomEvent,
+                                  reactions: [AggregatedReaction.mockReactionWithLongText,
+                                              AggregatedReaction.mockReactionWithLongTextRTL])
+            Divider()
+            TimelineReactionsView(context: TimelineViewModel.mock.context,
+                                  itemID: .randomEvent,
+                                  reactions: Array(AggregatedReaction.mockReactions.prefix(3)))
+            Divider()
+            TimelineReactionsView(context: TimelineViewModel.mock.context,
+                                  itemID: .randomEvent,
+                                  reactions: AggregatedReaction.mockReactions)
+            Divider()
+            TimelineReactionsView(context: TimelineViewModel.mock.context,
+                                  itemID: .randomEvent,
+                                  reactions: AggregatedReaction.mockReactions,
+                                  isLayoutRTL: true)
+        }
+        .background(Color.red)
+        .frame(maxWidth: 250, alignment: .leading)
+    }
+}
+
+struct TimelineReactionView_Previews: PreviewProvider, TestablePreview {
+    static var previews: some View {
+        TimelineReactionViewPreviewsContainer()
+    }
+}
