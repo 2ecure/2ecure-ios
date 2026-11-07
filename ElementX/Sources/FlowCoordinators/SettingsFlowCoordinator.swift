@@ -362,8 +362,14 @@ class SettingsFlowCoordinator: FlowCoordinatorProtocol {
                                                                  appMediator: flowParameters.appMediator,
                                                                  userSession: flowParameters.userSession,
                                                                  continuation: continuation) { [weak self] in
-            // 2ecure: signing out on the account page signs the app out too, like «Remove this device».
-            self?.actionsSubject.send(.runLogoutFlow)
+            // 2ecure: signing out on the account page signs the app out too, like «Remove this device». The web view is
+            // still closing at this point; the logout flow's question (an alert after the settings sheet closes) would be
+            // dropped silently over a closing presentation, so wait until it is gone (owner's test of build 18).
+            guard let self else { return }
+            Task { [weak self] in
+                try? await Task.sleep(for: .seconds(1))
+                self?.actionsSubject.send(.runLogoutFlow)
+            }
         }
         accountSettingsPresenter?.start()
     }
