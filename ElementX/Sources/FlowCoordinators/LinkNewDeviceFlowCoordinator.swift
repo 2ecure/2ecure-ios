@@ -109,7 +109,7 @@ class LinkNewDeviceFlowCoordinator: FlowCoordinatorProtocol {
                 guard let self else { return }
                 
                 switch action {
-                case .signInManually, .signedIn:
+                case .signInManually, .signedIn, .createAccount:
                     fatalError("QR linking shouldn't send sign-in actions.")
                 case .startOver:
                     navigationStackCoordinator.pop() // Pops back to the LinkNewDeviceScreen.

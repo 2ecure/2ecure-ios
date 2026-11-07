@@ -329,6 +329,10 @@ class AuthenticationFlowCoordinator: FlowCoordinatorProtocol {
                 DispatchQueue.main.async {
                     self.stateMachine.tryEvent(.signedIn, userInfo: userSession)
                 }
+            case .createAccount(let invitationCode):
+                navigationStackCoordinator.setSheetCoordinator(nil)
+                stateMachine.tryEvent(.cancelledLoginWithQR)
+                Task { await self.createAccount(invitationCode: invitationCode) }
             case .cancel:
                 navigationStackCoordinator.setSheetCoordinator(nil)
                 stateMachine.tryEvent(.cancelledLoginWithQR)
@@ -338,6 +342,26 @@ class AuthenticationFlowCoordinator: FlowCoordinatorProtocol {
         
         stackCoordinator.setRootCoordinator(coordinator)
         navigationStackCoordinator.setSheetCoordinator(stackCoordinator) // Don't use the callback (interactive dismiss disabled), choose the event with the action.
+    }
+    
+    // MARK: - 2ecure Invitations
+    
+    /// 2ecure: opens the account server's registration with the scanned invitation's code filled in; the new account
+    /// is then signed in like any direct OAuth sign-in from the start screen.
+    private func createAccount(invitationCode: String) async {
+        let loadingIndicatorID = "\(Self.self)-CreateAccount"
+        userIndicatorController.submitIndicator(UserIndicator(id: loadingIndicatorID, type: .modal, title: L10n.commonLoading, persistent: true))
+        defer { userIndicatorController.retractIndicatorWithId(loadingIndicatorID) }
+        
+        guard case .success = await authenticationService.configure(for: appSettings.accountProviders[0].serverNameOrBaseURL, flow: .register),
+              case .success(var oAuthData) = await authenticationService.urlForOAuthLogin(loginHint: nil) else {
+            MXLog.error("Failed to start the registration for a scanned invitation.")
+            userIndicatorController.submitIndicator(UserIndicator(title: L10n.errorUnknown))
+            return
+        }
+        
+        oAuthData.invitationCode = invitationCode
+        showOAuthAuthentication(oAuthData: oAuthData, presentationAnchor: appMediator.windowManager.mainWindow)
     }
     
     // MARK: - Manual Authentication

@@ -1169,7 +1169,7 @@
 "screen_onboarding_checking_account" = "Checking account";
 "screen_onboarding_sign_in_manually" = "Sign in manually";
 "screen_onboarding_sign_in_to" = "Sign in to %1$@";
-"screen_onboarding_sign_in_with_qr_code" = "Sign in with QR code";
+"screen_onboarding_sign_in_with_qr_code" = "Scan QR code";
 "screen_onboarding_sign_up" = "Create account";
 "screen_onboarding_welcome_back" = "Welcome back";
 "screen_onboarding_welcome_message" = "Welcome to the fastest %1$@ ever. Supercharged for speed and simplicity.";
@@ -1213,9 +1213,10 @@
 "screen_qr_code_login_initial_state_item_3" = "Select %1$@";
 "screen_qr_code_login_initial_state_item_3_action" = "“Link new device”";
 "screen_qr_code_login_initial_state_item_4" = "Scan the QR code with this device";
-"screen_qr_code_login_initial_state_subtitle" = "Only available if your account provider supports it.";
-"screen_qr_code_login_initial_state_title" = "Open %1$@ on another device to get the QR code";
+"screen_qr_code_login_initial_state_subtitle" = "With your invitation’s QR code you create your account. To sign in with an account you already use on another device:";
+"screen_qr_code_login_initial_state_title" = "Scan the QR code from your invitation, or open %1$@ on another device to get one";
 "screen_qr_code_login_invalid_scan_state_description" = "Use the QR code shown on the other device.";
+"screen_qr_code_login_invalid_scan_state_invitation_description" = "Use the QR code from your invitation or the one shown on your other device.";
 "screen_qr_code_login_invalid_scan_state_retry_button" = "Try again";
 "screen_qr_code_login_invalid_scan_state_subtitle" = "Wrong QR code";
 "screen_qr_code_login_no_camera_permission_button" = "Go to camera settings";

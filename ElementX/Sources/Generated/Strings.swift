@@ -2724,7 +2724,7 @@ internal nonisolated enum L10n {
   internal static func screenOnboardingSignInTo(_ p1: Any) -> String {
     return L10n.tr("Localizable", "screen_onboarding_sign_in_to", String(describing: p1))
   }
-  /// Sign in with QR code
+  /// Scan QR code
   internal static var screenOnboardingSignInWithQrCode: String { return L10n.tr("Localizable", "screen_onboarding_sign_in_with_qr_code") }
   /// Create account
   internal static var screenOnboardingSignUp: String { return L10n.tr("Localizable", "screen_onboarding_sign_up") }
@@ -2834,14 +2834,16 @@ internal nonisolated enum L10n {
   internal static var screenQrCodeLoginInitialStateItem3Action: String { return L10n.tr("Localizable", "screen_qr_code_login_initial_state_item_3_action") }
   /// Scan the QR code with this device
   internal static var screenQrCodeLoginInitialStateItem4: String { return L10n.tr("Localizable", "screen_qr_code_login_initial_state_item_4") }
-  /// Only available if your account provider supports it.
+  /// With your invitation’s QR code you create your account. To sign in with an account you already use on another device:
   internal static var screenQrCodeLoginInitialStateSubtitle: String { return L10n.tr("Localizable", "screen_qr_code_login_initial_state_subtitle") }
-  /// Open %1$@ on another device to get the QR code
+  /// Scan the QR code from your invitation, or open %1$@ on another device to get one
   internal static func screenQrCodeLoginInitialStateTitle(_ p1: Any) -> String {
     return L10n.tr("Localizable", "screen_qr_code_login_initial_state_title", String(describing: p1))
   }
   /// Use the QR code shown on the other device.
   internal static var screenQrCodeLoginInvalidScanStateDescription: String { return L10n.tr("Localizable", "screen_qr_code_login_invalid_scan_state_description") }
+  /// Use the QR code from your invitation or the one shown on your other device.
+  internal static var screenQrCodeLoginInvalidScanStateInvitationDescription: String { return L10n.tr("Localizable", "screen_qr_code_login_invalid_scan_state_invitation_description") }
   /// Try again
   internal static var screenQrCodeLoginInvalidScanStateRetryButton: String { return L10n.tr("Localizable", "screen_qr_code_login_invalid_scan_state_retry_button") }
   /// Wrong QR code

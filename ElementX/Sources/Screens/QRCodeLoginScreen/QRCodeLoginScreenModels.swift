@@ -16,6 +16,8 @@ enum QRCodeLoginScreenViewModelAction: CustomStringConvertible {
     case startOver
     case signInManually
     case signedIn(userSession: UserSessionProtocol)
+    /// 2ecure: a 2ecure invitation was scanned instead of another device's code (login only).
+    case createAccount(invitationCode: String)
     case requestOAuthAuthorisation(URL, OAuthAccountSettingsPresenter.Continuation)
     case linkedDevice
     /// Cancel the flow (dismiss the modal).
@@ -26,6 +28,7 @@ enum QRCodeLoginScreenViewModelAction: CustomStringConvertible {
         case .startOver: "startOver"
         case .signInManually: "signInManually"
         case .signedIn: "signedIn"
+        case .createAccount: "createAccount"
         case .requestOAuthAuthorisation: "requestOAuthAuthorisation"
         case .linkedDevice: "linkedDevice"
         case .cancel: "cancel"
@@ -142,6 +145,8 @@ nonisolated enum QRCodeLoginState: Equatable {
         nonisolated enum Error: Equatable {
             /// The QR code has been processed and is invalid.
             case invalid
+            /// 2ecure: as `invalid`, when signing in, where an invitation's QR code would have been accepted too.
+            case invalidForSignIn
             /// The QR code has been processed but it is for an account provider that isn't allowed.
             case notAllowed(scannedProvider: String, allowedProviders: [String])
             /// The QR code has been processed but it belongs to a device not signed in.
@@ -149,7 +154,7 @@ nonisolated enum QRCodeLoginState: Equatable {
             
             var title: String {
                 switch self {
-                case .invalid:
+                case .invalid, .invalidForSignIn:
                     L10n.screenQrCodeLoginInvalidScanStateSubtitle
                 case .notAllowed(let scannedProvider, _):
                     L10n.screenChangeServerErrorUnauthorizedHomeserverTitle(scannedProvider)
@@ -162,6 +167,8 @@ nonisolated enum QRCodeLoginState: Equatable {
                 switch self {
                 case .invalid:
                     L10n.screenQrCodeLoginInvalidScanStateDescription
+                case .invalidForSignIn:
+                    L10n.screenQrCodeLoginInvalidScanStateInvitationDescription
                 case .notAllowed(_, let allowedProviders):
                     L10n.screenChangeServerErrorUnauthorizedHomeserverContent(allowedProviders.formatted(.list(type: .and)))
                 case .deviceNotSignedIn:

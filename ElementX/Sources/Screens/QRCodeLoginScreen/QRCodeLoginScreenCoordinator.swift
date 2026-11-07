@@ -24,6 +24,8 @@ enum QRCodeLoginScreenCoordinatorAction: CustomStringConvertible {
     case startOver
     case signInManually
     case signedIn(userSession: UserSessionProtocol)
+    /// 2ecure: a 2ecure invitation was scanned instead of another device's code (login only).
+    case createAccount(invitationCode: String)
     case requestOAuthAuthorisation(URL, OAuthAccountSettingsPresenter.Continuation)
     case linkedDevice
     /// Cancel the flow (dismiss the modal).
@@ -34,6 +36,7 @@ enum QRCodeLoginScreenCoordinatorAction: CustomStringConvertible {
         case .startOver: "startOver"
         case .signInManually: "signInManually"
         case .signedIn: "signedIn"
+        case .createAccount: "createAccount"
         case .requestOAuthAuthorisation: "requestOAuthAuthorisation"
         case .linkedDevice: "linkedDevice"
         case .cancel: "cancel"
@@ -71,6 +74,8 @@ final class QRCodeLoginScreenCoordinator: CoordinatorProtocol {
                 actionsSubject.send(.startOver)
             case .signedIn(let userSession):
                 actionsSubject.send(.signedIn(userSession: userSession))
+            case .createAccount(let invitationCode):
+                actionsSubject.send(.createAccount(invitationCode: invitationCode))
             case .requestOAuthAuthorisation(let url, let continuation):
                 actionsSubject.send(.requestOAuthAuthorisation(url, continuation))
             case .linkedDevice:
