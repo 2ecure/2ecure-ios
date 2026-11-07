@@ -1,0 +1,47 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":semanticCommitsDisabled"
+  ],
+  "labels" : [
+    "pr-misc"
+  ],
+  "minimumReleaseAge": "7 days",
+  "packageRules" : [
+    {
+      "matchManagers": ["github-actions"],
+      "groupName" : "GitHub Actions"
+    },
+    {
+      "matchManagers": ["xcodegen"],
+      "groupName": "Project Dependencies",
+      "schedule": [
+          "every 2 weeks on wednesday before 4:00 am",
+      ]
+    },
+    {
+      "matchManagers": ["swift"],
+      "groupName" : "Tool Dependencies",
+      "schedule": [
+          "every 2 weeks on wednesday before 4:00 am",
+      ]
+    },
+    {
+      "matchManagers": ["swift", "cocoapods"],
+      "matchFileNames": ["compound-ios/Package.swift"],
+      "groupName": "Compound Dependencies",
+      "schedule": [
+          "every 2 weeks on wednesday before 4:00 am",
+      ]
+    },
+    {
+      "description": "Shared between Compound and the app, keep them in sync.",
+      "matchPackageNames": ["pointfreeco/swift-snapshot-testing", "https://github.com/pointfreeco/swift-snapshot-testing"],
+      "groupName": "Shared Dependencies",
+      "schedule": [
+          "every 2 weeks on wednesday before 4:00 am",
+      ]
+    },
+  ]
+}
