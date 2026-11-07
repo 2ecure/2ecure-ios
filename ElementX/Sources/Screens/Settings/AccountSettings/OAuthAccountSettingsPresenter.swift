@@ -52,9 +52,7 @@ class OAuthAccountSettingsPresenter: NSObject {
                 MXLog.info("Signed out on the account page.")
                 continuation?.yield(.failure(.userCancellation))
                 continuation?.finish()
-                if let onSignOut {
-                    Task { await onSignOut() }
-                }
+                onSignOut?()
                 return
             }
             
