@@ -89,12 +89,14 @@ struct OAuthAuthorizationDataProxy: Hashable {
     let underlyingData: OAuthAuthorizationData
     /// The homeserver that the authorisation is for.
     let homeserver: String
+    /// 2ecure: a scanned invitation's code, handed to the account server's registration (`InvitationLinks`).
+    var invitationCode: String?
     
     var url: URL {
         guard let url = URL(string: underlyingData.loginUrl()) else {
             fatalError("OAuth login URL hasn't been validated.")
         }
-        return url
+        return invitationCode.map { InvitationLinks.url(url, withInvitationCode: $0) } ?? url
     }
 }
 

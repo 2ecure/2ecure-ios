@@ -121,6 +121,13 @@ class QRCodeLoginScreenViewModel: QRCodeLoginScreenViewModelType, QRCodeLoginScr
     private func handleScan(qrData: Data, loginService: QRCodeLoginServiceProtocol) {
         guard currentOperation == nil else { return }
         
+        // 2ecure: the button scans both kinds of code, so an invitation creates the account instead of «Wrong QR code».
+        if let invitationCode = InvitationLinks.invitationCode(fromQRCode: qrData) {
+            MXLog.info("Scanned a 2ecure invitation")
+            actionsSubject.send(.createAccount(invitationCode: invitationCode))
+            return
+        }
+        
         state.state = .scan(.connecting)
         
         MXLog.info("Login scanning QR code")
@@ -329,7 +336,11 @@ class QRCodeLoginScreenViewModel: QRCodeLoginScreenViewModelType, QRCodeLoginScr
         MXLog.error("Failed to scan the QR code: \(error)")
         switch error {
         case .invalidQRCode:
-            state.state = .scan(.scanFailed(.invalid))
+            if case .login = state.mode {
+                state.state = .scan(.scanFailed(.invalidForSignIn))
+            } else {
+                state.state = .scan(.scanFailed(.invalid))
+            }
         case .providerNotAllowed(let scannedProvider, let allowedProviders):
             state.state = .scan(.scanFailed(.notAllowed(scannedProvider: scannedProvider, allowedProviders: allowedProviders)))
         case .deviceNotSignedIn:

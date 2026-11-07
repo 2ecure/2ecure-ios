@@ -1136,7 +1136,7 @@
 "screen_onboarding_checking_account" = "Konto wird geprüft";
 "screen_onboarding_sign_in_manually" = "Manuell anmelden";
 "screen_onboarding_sign_in_to" = "Anmelden bei %1$@";
-"screen_onboarding_sign_in_with_qr_code" = "Mit QR-Code anmelden";
+"screen_onboarding_sign_in_with_qr_code" = "QR-Code scannen";
 "screen_onboarding_sign_up" = "Konto erstellen";
 "screen_onboarding_welcome_back" = "Willkommen zurück";
 "screen_onboarding_welcome_message" = "Willkommen beim schnellsten %1$@ aller Zeiten. Optimiert für Geschwindigkeit und Einfachheit.";
@@ -1177,11 +1177,12 @@
 "screen_qr_code_login_initial_state_item_1" = "%1$@ auf einem Desktop-Gerät öffnen";
 "screen_qr_code_login_initial_state_item_2" = "Wähle dein Profilbild";
 "screen_qr_code_login_initial_state_item_3" = "Wähle %1$@";
-"screen_qr_code_login_initial_state_item_3_action" = "„Neues Gerät verknüpfen“";
+"screen_qr_code_login_initial_state_item_3_action" = "«Neues Gerät verknüpfen»";
 "screen_qr_code_login_initial_state_item_4" = "Scanne den QR-Code mit diesem Gerät";
-"screen_qr_code_login_initial_state_subtitle" = "Nur verfügbar falls dein Kontoanbieter dies unterstützt.";
-"screen_qr_code_login_initial_state_title" = "Öffne %1$@ auf einem anderen Gerät, um den QR-Code zu erhalten";
+"screen_qr_code_login_initial_state_subtitle" = "Mit dem QR-Code aus deiner Einladung erstellst du dein Konto. So meldest du dich mit einem Konto an, das du schon auf einem anderen Gerät nutzt:";
+"screen_qr_code_login_initial_state_title" = "Scanne den QR-Code aus deiner Einladung oder öffne %1$@ auf einem anderen Gerät, um einen zu erhalten";
 "screen_qr_code_login_invalid_scan_state_description" = "Verwende den QR-Code, der auf dem anderen Gerät angezeigt wird.";
+"screen_qr_code_login_invalid_scan_state_invitation_description" = "Verwende den QR-Code aus deiner Einladung oder den, der auf deinem anderen Gerät angezeigt wird.";
 "screen_qr_code_login_invalid_scan_state_retry_button" = "Erneut versuchen";
 "screen_qr_code_login_invalid_scan_state_subtitle" = "Falscher QR-Code";
 "screen_qr_code_login_no_camera_permission_button" = "Gehe zu den Kameraeinstellungen";

@@ -1136,7 +1136,7 @@
 "screen_onboarding_checking_account" = "Verifica dell'account";
 "screen_onboarding_sign_in_manually" = "Accedi manualmente";
 "screen_onboarding_sign_in_to" = "Accedi a %1$@";
-"screen_onboarding_sign_in_with_qr_code" = "Accedi con codice QR";
+"screen_onboarding_sign_in_with_qr_code" = "Scansiona codice QR";
 "screen_onboarding_sign_up" = "Crea account";
 "screen_onboarding_welcome_back" = "Bentornato";
 "screen_onboarding_welcome_message" = "Benvenuti nell'%1$@ più veloce di sempre. Potenziato per velocità e semplicità.";
@@ -1179,9 +1179,10 @@
 "screen_qr_code_login_initial_state_item_3" = "Seleziona %1$@";
 "screen_qr_code_login_initial_state_item_3_action" = "\"Collega un nuovo dispositivo\"";
 "screen_qr_code_login_initial_state_item_4" = "Scansiona il codice QR con questo dispositivo";
-"screen_qr_code_login_initial_state_subtitle" = "Disponibile solo se il provider del tuo account lo supporta.";
-"screen_qr_code_login_initial_state_title" = "Apri %1$@ su un altro dispositivo per ottenere il codice QR";
+"screen_qr_code_login_initial_state_subtitle" = "Con il codice QR del tuo invito crei il tuo account. Per accedere con un account che usi già su un altro dispositivo:";
+"screen_qr_code_login_initial_state_title" = "Scansiona il codice QR del tuo invito oppure apri %1$@ su un altro dispositivo per ottenerne uno";
 "screen_qr_code_login_invalid_scan_state_description" = "Usa il codice QR mostrato sull'altro dispositivo.";
+"screen_qr_code_login_invalid_scan_state_invitation_description" = "Usa il codice QR del tuo invito o quello mostrato sull'altro dispositivo.";
 "screen_qr_code_login_invalid_scan_state_retry_button" = "Riprova";
 "screen_qr_code_login_invalid_scan_state_subtitle" = "Codice QR sbagliato";
 "screen_qr_code_login_no_camera_permission_button" = "Vai alle impostazioni della fotocamera";
