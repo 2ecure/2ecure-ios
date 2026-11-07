@@ -1167,7 +1167,7 @@
 "screen_qr_code_login_error_declined_title" = "Accesso rifiutato";
 "screen_qr_code_login_error_device_already_signed_in_subtitle" = "Non devi fare altro.";
 "screen_qr_code_login_error_device_already_signed_in_title" = "L'altro tuo dispositivo è già connesso";
-"screen_qr_code_login_error_expired_subtitle" = "L'accesso è scaduto. Riprova.";
+"screen_qr_code_login_error_expired_subtitle" = "Un codice QR è valido solo per un minuto. Mostrane uno nuovo e completa subito l'accesso su entrambi i dispositivi.";
 "screen_qr_code_login_error_expired_title" = "L'accesso non è stato completato in tempo";
 "screen_qr_code_login_error_linking_not_suported_subtitle" = "L'altro dispositivo non supporta l'accesso a %@ con un codice QR.\n\nProva ad accedere manualmente o scansiona il codice QR con un altro dispositivo.";
 "screen_qr_code_login_error_linking_not_suported_title" = "Codice QR non supportato";

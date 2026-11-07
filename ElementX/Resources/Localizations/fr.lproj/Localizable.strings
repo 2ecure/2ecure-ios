@@ -1167,7 +1167,7 @@
 "screen_qr_code_login_error_declined_title" = "Connexion refusée";
 "screen_qr_code_login_error_device_already_signed_in_subtitle" = "Vous n’avez rien d’autre à faire.";
 "screen_qr_code_login_error_device_already_signed_in_title" = "Votre autre appareil est déjà connecté";
-"screen_qr_code_login_error_expired_subtitle" = "Connexion expirée. Veuillez essayer à nouveau.";
+"screen_qr_code_login_error_expired_subtitle" = "Un code QR n'est valable qu'une minute. Affichez-en un nouveau et terminez la connexion sur les deux appareils sans attendre.";
 "screen_qr_code_login_error_expired_title" = "La connexion a pris trop de temps.";
 "screen_qr_code_login_error_linking_not_suported_subtitle" = "Votre autre appareil ne supporte pas la connexion à %@ avec un code QR. Essayer de vous connecter manuellement, ou scanner le code QR avec un autre appareil.";
 "screen_qr_code_login_error_linking_not_suported_title" = "Code QR non supporté";
