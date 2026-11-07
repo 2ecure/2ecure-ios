@@ -361,7 +361,10 @@ class SettingsFlowCoordinator: FlowCoordinatorProtocol {
                                                                  presentationAnchor: flowParameters.windowManager.mainWindow,
                                                                  appMediator: flowParameters.appMediator,
                                                                  userSession: flowParameters.userSession,
-                                                                 continuation: continuation)
+                                                                 continuation: continuation) { [weak self] in
+            // 2ecure: signing out on the account page signs the app out too, like «Remove this device».
+            self?.actionsSubject.send(.runLogoutFlow)
+        }
         accountSettingsPresenter?.start()
     }
 }
