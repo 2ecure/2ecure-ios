@@ -2798,7 +2798,7 @@ internal nonisolated enum L10n {
   internal static var screenQrCodeLoginErrorDeviceAlreadySignedInSubtitle: String { return L10n.tr("Localizable", "screen_qr_code_login_error_device_already_signed_in_subtitle") }
   /// Your other device is already signed in
   internal static var screenQrCodeLoginErrorDeviceAlreadySignedInTitle: String { return L10n.tr("Localizable", "screen_qr_code_login_error_device_already_signed_in_title") }
-  /// Sign in expired. Please try again.
+  /// A QR code is only valid for one minute. Show a new one and finish the sign-in on both devices right away.
   internal static var screenQrCodeLoginErrorExpiredSubtitle: String { return L10n.tr("Localizable", "screen_qr_code_login_error_expired_subtitle") }
   /// The sign in was not completed in time
   internal static var screenQrCodeLoginErrorExpiredTitle: String { return L10n.tr("Localizable", "screen_qr_code_login_error_expired_title") }

@@ -1201,7 +1201,7 @@
 "screen_qr_code_login_error_declined_title" = "Anmelden abgelehnt";
 "screen_qr_code_login_error_device_already_signed_in_subtitle" = "Du musst nichts weiter tun.";
 "screen_qr_code_login_error_device_already_signed_in_title" = "Dein anderes Gerät ist schon angemeldet";
-"screen_qr_code_login_error_expired_subtitle" = "Die Anmeldung ist abgelaufen. Bitte versuche es erneut.";
+"screen_qr_code_login_error_expired_subtitle" = "Ein QR-Code gilt nur eine Minute lang. Lass einen neuen anzeigen und schliesse die Anmeldung auf beiden Geräten gleich ab.";
 "screen_qr_code_login_error_expired_title" = "Die Anmeldung wurde nicht rechtzeitig abgeschlossen";
 "screen_qr_code_login_error_linking_not_suported_subtitle" = "Dein anderes Gerät unterstützt die Anmeldung bei %@ mit einem QR-Code nicht.\n\nVersuche, dich manuell anzumelden, oder scanne den QR-Code mit einem anderen Gerät.";
 "screen_qr_code_login_error_linking_not_suported_title" = "QR-Code wird nicht unterstützt";
