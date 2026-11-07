@@ -2680,14 +2680,14 @@ nonisolated class ClientProxyMock: ClientProxyProtocol, @unchecked Sendable {
     }
 
     private let makeNativeCallBackendReturnValueLock = NSLock()
-    private nonisolated(unsafe) var makeNativeCallBackendUnderlyingReturnValue: any ElementCallMatrixBackendProtocol?
-    var makeNativeCallBackendReturnValue: any ElementCallMatrixBackendProtocol? {
+    private nonisolated(unsafe) var makeNativeCallBackendUnderlyingReturnValue: (any ElementCallMatrixBackendProtocol)?
+    var makeNativeCallBackendReturnValue: (any ElementCallMatrixBackendProtocol)? {
         get { makeNativeCallBackendReturnValueLock.withLock { makeNativeCallBackendUnderlyingReturnValue } }
         set { makeNativeCallBackendReturnValueLock.withLock { makeNativeCallBackendUnderlyingReturnValue = newValue } }
     }
-    nonisolated(unsafe) var makeNativeCallBackendClosure: (() -> any ElementCallMatrixBackendProtocol?)?
+    nonisolated(unsafe) var makeNativeCallBackendClosure: (() -> (any ElementCallMatrixBackendProtocol)?)?
 
-    func makeNativeCallBackend() -> any ElementCallMatrixBackendProtocol? {
+    func makeNativeCallBackend() -> (any ElementCallMatrixBackendProtocol)? {
         makeNativeCallBackendCallsCountLock.withLock { makeNativeCallBackendUnderlyingCallsCount += 1 }
         if let makeNativeCallBackendClosure = makeNativeCallBackendClosure {
             return makeNativeCallBackendClosure()
