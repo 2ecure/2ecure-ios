@@ -13,17 +13,17 @@ struct AccountPageLinksTests {
     @Test("Account pages opened from the app are marked")
     func accountPagesAreMarked() throws {
         let account = try #require(URL(string: "https://account.2ecure.com/account/"))
-        #expect(AccountPageLinks.appURL(account).absoluteString == "https://account.2ecure.com/account/#2ecure-app=ios")
+        #expect(AccountPageLinks.appURL(account, userID: "@anna:2ecure.com").absoluteString == "https://account.2ecure.com/account/#2ecure-app=ios&user=%40anna%3A2ecure.com")
         let action = try #require(URL(string: "https://account.2ecure.com/account/?action=org.matrix.profile"))
-        #expect(AccountPageLinks.appURL(action).absoluteString == "https://account.2ecure.com/account/?action=org.matrix.profile#2ecure-app=ios")
+        #expect(AccountPageLinks.appURL(action, userID: "@anna:2ecure.com").absoluteString == "https://account.2ecure.com/account/?action=org.matrix.profile#2ecure-app=ios&user=%40anna%3A2ecure.com")
     }
     
     @Test("Other pages and URLs with a fragment are unchanged")
     func otherPagesAreUnchanged() throws {
         let other = try #require(URL(string: "https://example.org/account/"))
-        #expect(AccountPageLinks.appURL(other) == other)
+        #expect(AccountPageLinks.appURL(other, userID: "@anna:2ecure.com") == other)
         let withFragment = try #require(URL(string: "https://account.2ecure.com/account/#section"))
-        #expect(AccountPageLinks.appURL(withFragment) == withFragment)
+        #expect(AccountPageLinks.appURL(withFragment, userID: "@anna:2ecure.com") == withFragment)
     }
     
     @Test("Only the app's signed-out callback counts as a sign-out")

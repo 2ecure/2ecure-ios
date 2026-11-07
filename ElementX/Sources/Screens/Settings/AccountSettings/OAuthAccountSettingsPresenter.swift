@@ -20,6 +20,8 @@ class OAuthAccountSettingsPresenter: NSObject {
     private let presentationAnchor: UIWindow
     private let appMediator: AppMediatorProtocol
     private let presenterHook: OAuthAccountSettingsPresenterHookProtocol
+    /// 2ecure: the app's account, so the account page can tell whether its web sign-in is the same (`AccountPageLinks`).
+    private let userID: String
     
     typealias Continuation = AsyncStream<Result<Void, OAuthError>>.Continuation
     private let continuation: Continuation?
@@ -37,6 +39,7 @@ class OAuthAccountSettingsPresenter: NSObject {
         self.presentationAnchor = presentationAnchor
         self.appMediator = appMediator
         presenterHook = userSession.userHooks.oAuthAccountSettingsPresenterHook
+        userID = userSession.clientProxy.userID
         self.continuation = continuation
         self.onSignOut = onSignOut
         
@@ -45,7 +48,7 @@ class OAuthAccountSettingsPresenter: NSObject {
     
     /// Presents a web authentication session for the supplied data.
     func start() {
-        let accountURL = presenterHook.update(AccountPageLinks.appURL(accountURL))
+        let accountURL = presenterHook.update(AccountPageLinks.appURL(accountURL, userID: userID))
         
         let session = ASWebAuthenticationSession(url: accountURL, callback: .oAuthRedirectURL(redirectURL)) { [continuation, onSignOut, redirectURL] callbackURL, error in
             if let callbackURL, AccountPageLinks.isSignedOutCallback(callbackURL, redirectURL: redirectURL) {
