@@ -10,7 +10,7 @@ import Foundation
 import Testing
 
 struct AccountPageLinksTests {
-    @Test
+    @Test("Account pages opened from the app are marked")
     func accountPagesAreMarked() throws {
         let account = try #require(URL(string: "https://account.2ecure.com/account/"))
         #expect(AccountPageLinks.appURL(account).absoluteString == "https://account.2ecure.com/account/#2ecure-app=ios")
@@ -18,7 +18,7 @@ struct AccountPageLinksTests {
         #expect(AccountPageLinks.appURL(action).absoluteString == "https://account.2ecure.com/account/?action=org.matrix.profile#2ecure-app=ios")
     }
     
-    @Test
+    @Test("Other pages and URLs with a fragment are unchanged")
     func otherPagesAreUnchanged() throws {
         let other = try #require(URL(string: "https://example.org/account/"))
         #expect(AccountPageLinks.appURL(other) == other)
@@ -26,7 +26,7 @@ struct AccountPageLinksTests {
         #expect(AccountPageLinks.appURL(withFragment) == withFragment)
     }
     
-    @Test
+    @Test("Only the app's signed-out callback counts as a sign-out")
     func signedOutCallback() throws {
         let redirectURL = try #require(URL(string: "com.2ecure.chat:/oauth/callback"))
         #expect(try AccountPageLinks.isSignedOutCallback(#require(URL(string: "com.2ecure.chat:/signed-out")), redirectURL: redirectURL))
