@@ -23,27 +23,41 @@ class OAuthAccountSettingsPresenter: NSObject {
     
     typealias Continuation = AsyncStream<Result<Void, OAuthError>>.Continuation
     private let continuation: Continuation?
+    /// 2ecure: called when the person signs out on the account page (`AccountPageLinks`).
+    private let onSignOut: (@MainActor @Sendable () -> Void)?
     
     init(accountURL: URL,
          presentationAnchor: UIWindow,
          appMediator: AppMediatorProtocol,
          userSession: UserSessionProtocol,
-         continuation: Continuation? = nil) {
+         continuation: Continuation? = nil,
+         onSignOut: (@MainActor @Sendable () -> Void)? = nil) {
         self.accountURL = accountURL
         redirectURL = userSession.userSettings.app.oAuthRedirectURL
         self.presentationAnchor = presentationAnchor
         self.appMediator = appMediator
         presenterHook = userSession.userHooks.oAuthAccountSettingsPresenterHook
         self.continuation = continuation
+        self.onSignOut = onSignOut
         
         super.init()
     }
     
     /// Presents a web authentication session for the supplied data.
     func start() {
-        let accountURL = presenterHook.update(accountURL)
+        let accountURL = presenterHook.update(AccountPageLinks.appURL(accountURL))
         
-        let session = ASWebAuthenticationSession(url: accountURL, callback: .oAuthRedirectURL(redirectURL)) { [continuation] _, error in
+        let session = ASWebAuthenticationSession(url: accountURL, callback: .oAuthRedirectURL(redirectURL)) { [continuation, onSignOut, redirectURL] callbackURL, error in
+            if let callbackURL, AccountPageLinks.isSignedOutCallback(callbackURL, redirectURL: redirectURL) {
+                MXLog.info("Signed out on the account page.")
+                continuation?.yield(.failure(.userCancellation))
+                continuation?.finish()
+                if let onSignOut {
+                    Task { await onSignOut() }
+                }
+                return
+            }
+            
             guard let continuation else { return }
             
             if error?.isOAuthUserCancellation == true {
