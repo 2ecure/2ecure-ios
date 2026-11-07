@@ -36,7 +36,7 @@ struct DefaultAppSettingsHook: AppSettingsHookProtocol {
                              accountProvisioningHost: "2ecure.com",
                              bugReportApplicationID: "2ecure-ios",
                              analyticsTermsURL: nil,
-                             mapTilerConfiguration: .init(baseURL: "https://2ecure.com", apiKey: nil, lightStyleID: "", darkStyleID: ""))
+                             bundledMapTilerConfiguration: .init(baseURL: "https://2ecure.com", apiKey: nil, lightStyleID: "", darkStyleID: ""))
         return appSettings
     }
 }
