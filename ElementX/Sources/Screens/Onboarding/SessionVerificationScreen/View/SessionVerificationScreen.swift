@@ -168,7 +168,27 @@ struct SessionVerificationScreen: View {
                 .buttonStyle(.compound(.tertiary))
                 .accessibilityIdentifier(A11yIdentifiers.sessionVerificationScreen.declineChallenge)
             }
-            
+
+        case .acceptingChallenge:
+            // 2ecure: the other side's confirmation can take up to a minute; show that the app is waiting, as Android
+            // does. The hidden button keeps the layout from jumping.
+            VStack(spacing: 16) {
+                Button { } label: {
+                    Label {
+                        Text(L10n.screenSessionVerificationPositiveButtonVerifyingOngoing)
+                    } icon: {
+                        ProgressView()
+                            .tint(.compound.iconOnSolidPrimary)
+                    }
+                }
+                .buttonStyle(.compound(.primary))
+                .disabled(true)
+
+                Button(L10n.screenSessionVerificationTheyDontMatch) { }
+                    .buttonStyle(.compound(.tertiary))
+                    .hidden()
+            }
+
         default:
             EmptyView()
         }
