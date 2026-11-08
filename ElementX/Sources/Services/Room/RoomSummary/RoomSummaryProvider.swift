@@ -336,7 +336,7 @@ class RoomSummaryProvider: RoomSummaryProviderProtocol {
                 }
             case .remote(let timestamp, let senderID, let isOwn, let profile, let content):
                 let sender = TimelineItemSender(senderID: senderID, senderProfile: profile)
-                attributedLastMessage = eventStringBuilder.buildAttributedString(for: content, sender: sender, isOutgoing: isOwn)
+                attributedLastMessage = eventStringBuilder.buildAttributedString(for: content, sender: sender, isOutgoing: isOwn, isDM: roomInfo.isDm)
                 lastMessageDate = Date(timeIntervalSince1970: TimeInterval(timestamp / 1000))
             case .remoteInvite(let timestamp, let senderID, let profile):
                 lastMessageDate = Date(timeIntervalSince1970: TimeInterval(timestamp / 1000))
@@ -380,6 +380,7 @@ class RoomSummaryProvider: RoomSummaryProviderProtocol {
                            isJoined: roomInfo.membership == .joined,
                            name: roomInfo.displayName ?? roomInfo.id,
                            isDirect: roomInfo.isDirect,
+                           isDM: roomInfo.isDm,
                            isSpace: roomInfo.isSpace,
                            avatarURL: roomInfo.avatarUrl.flatMap(URL.init(string:)),
                            heroes: roomInfo.heroes.map(UserProfile.init),

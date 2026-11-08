@@ -210,6 +210,9 @@ struct HomeScreenRoom: Identifiable, Equatable {
     
     let isDirect: Bool
     
+    /// 2ecure: one-to-one chats show no group icon in the chat list.
+    var isDM = false
+    
     let isHighlighted: Bool
     
     let isFavourite: Bool
@@ -298,6 +301,7 @@ extension HomeScreenRoom {
                                 callBadgeType: callBadge),
                   name: summary.name,
                   isDirect: summary.isDirect,
+                  isDM: summary.isDM,
                   isHighlighted: isHighlighted,
                   isFavourite: summary.isFavourite,
                   timestamp: summary.lastMessageDate?.formattedMinimal(),

@@ -75,6 +75,13 @@ struct HomeScreenRoomCell: View {
     private var header: some View {
         HStack(alignment: .top, spacing: 16) {
             HStack(spacing: 4) {
+                // 2ecure: a group icon tells rooms apart from one-to-one chats.
+                if !room.isDM {
+                    CompoundIcon(\.group, size: .small, relativeTo: .compound.bodyLGSemibold)
+                        .foregroundStyle(.compound.iconSecondary)
+                        .accessibilityLabel(L10n.commonRoom)
+                }
+                
                 Text(room.name)
                     .lineLimit(1)
                 
@@ -97,8 +104,9 @@ struct HomeScreenRoomCell: View {
     private var footer: some View {
         HStack(alignment: .firstTextBaseline, spacing: 0) {
             ZStack(alignment: .topLeading) {
-                // Hidden text with 2 lines to maintain consistent height, scaling with dynamic text.
-                Text(" \n ")
+                // Hidden text with 1 line to maintain consistent height, scaling with dynamic text.
+                // 2ecure: one line instead of two, so more chats fit on the screen.
+                Text(" ")
                     .lastMessageFormatting(hasFailed: false)
                     .hidden()
                     .environment(\.redactionReasons, []) // Always maintain consistent height
@@ -189,7 +197,7 @@ struct HomeScreenRoomCellButtonStyle: ButtonStyle {
 private extension View {
     func lastMessageFormatting(hasFailed: Bool) -> some View {
         foregroundColor(hasFailed ? .compound.textCriticalPrimary : .compound.textSecondary)
-            .lineLimit(2)
+            .lineLimit(1)
             .multilineTextAlignment(.leading)
     }
 }
