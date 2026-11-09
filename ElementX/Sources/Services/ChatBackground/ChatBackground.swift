@@ -117,10 +117,10 @@ nonisolated struct ChatBackgroundColour: Hashable, Sendable {
         Color(red: red, green: green, blue: blue)
     }
     
-    /// The colour patterns draw in: the base a little darker, or lighter when the base is dark.
+    /// The colour patterns draw in: the base very slightly darker, or lighter when the base is dark (5 % / 6 %).
     var motif: ChatBackgroundColour {
         let luminance = 0.2126 * red + 0.7152 * green + 0.0722 * blue
-        let shift: (Double) -> Double = luminance > 0.5 ? { $0 * 0.84 } : { $0 + 0.2 * (1 - $0) }
+        let shift: (Double) -> Double = luminance > 0.5 ? { $0 * 0.95 } : { $0 + 0.06 * (1 - $0) }
         func channel(_ value: Double) -> UInt32 {
             UInt32((shift(value) * 255).rounded())
         }
