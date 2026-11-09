@@ -310,4 +310,28 @@ protocol ClientProxyProtocol: AnyObject {
     /// Configures the client-owned presence used by future sync requests and shared with clones and notification children.
     /// When `sendImmediately` is `true` this also asks the SDK to send a direct presence update.
     func configurePresence(_ presence: ClientProxyPresence, sendImmediately: Bool) async -> Result<Void, ClientProxyError>
+    
+    // MARK: - 2ecure
+    
+    /// The content of a global account data event in the SDK's store, as JSON (2ecure: chat backgrounds).
+    func accountData(eventType: String) async -> Result<String?, ClientProxyError>
+    /// Replaces the content of a global account data event with the given JSON (2ecure: chat backgrounds).
+    func setAccountData(eventType: String, content: String) async -> Result<Void, ClientProxyError>
+    /// Uploads data as plain, unencrypted media and returns its `mxc://` URL (2ecure: chat background photos).
+    func uploadMedia(data: Data, mimeType: String) async -> Result<String, ClientProxyError>
+}
+
+// 2ecure: defaults for the generated ClientProxyMock, which 2ecure's builds don't regenerate.
+extension ClientProxyProtocol {
+    func accountData(eventType: String) async -> Result<String?, ClientProxyError> {
+        .success(nil)
+    }
+    
+    func setAccountData(eventType: String, content: String) async -> Result<Void, ClientProxyError> {
+        .failure(.forbiddenAccess)
+    }
+    
+    func uploadMedia(data: Data, mimeType: String) async -> Result<String, ClientProxyError> {
+        .failure(.invalidMedia)
+    }
 }

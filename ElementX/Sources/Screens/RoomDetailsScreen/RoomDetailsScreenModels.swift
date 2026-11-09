@@ -42,6 +42,8 @@ struct DMRecipientInfo {
 struct RoomDetailsScreenViewState: BindableState {
     var details: RoomDetails
     
+    /// 2ecure: spaces have no timeline, so no chat background.
+    var isSpace = false
     var isEncrypted: Bool
     var isDirect: Bool
     var permalink: URL?
@@ -182,6 +184,9 @@ struct RoomDetailsScreenViewStateBindings {
     
     /// The view model used to display the leave space sheet, will only be used if the room is a space.
     var leaveSpaceViewModel: LeaveSpaceViewModel?
+    
+    /// 2ecure: the sheet for choosing the chat's background.
+    var chatBackgroundPicker: ChatBackgroundPickerModel?
 }
 
 struct LeaveRoomAlertItem: AlertProtocol {
@@ -234,6 +239,7 @@ enum RoomDetailsScreenViewAction {
     case processTapMediaEvents
     case processTapRequestsToJoin
     case processTapReport
+    case processTapChatBackground
 }
 
 enum RoomDetailsScreenViewShortcut {

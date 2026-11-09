@@ -70,6 +70,8 @@ class RoomDetailsScreenViewModel: RoomDetailsScreenViewModelType, RoomDetailsScr
         super.init(initialViewState: userSession.userHooks.roomDetailsScreenHook.update(viewState),
                    mediaProvider: userSession.mediaProvider)
         
+        state.isSpace = roomProxy.infoPublisher.value.isSpace
+        
         Task {
             state.reportRoomEnabled = await userSession.clientProxy.isReportRoomSupported
         }
@@ -162,6 +164,9 @@ class RoomDetailsScreenViewModel: RoomDetailsScreenViewModelType, RoomDetailsScr
             actionsSubject.send(.requestRecipientDetailsPresentation(userID: userID))
         case .processTapReport:
             actionsSubject.send(.displayReportRoom)
+        case .processTapChatBackground:
+            state.bindings.chatBackgroundPicker = ChatBackgroundPickerModel(roomID: roomProxy.id,
+                                                                           store: .shared(for: userSession.clientProxy))
         }
     }
     

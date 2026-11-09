@@ -77,6 +77,17 @@ class RoomScreenViewModel: RoomScreenViewModelType, RoomScreenViewModelProtocol 
         updateRoomInfo(roomProxy.infoPublisher.value)
         setupSubscriptions(ongoingCallRoomIDPublisher: userSession.elementCallService.ongoingCallRoomIDPublisher)
         
+        // 2ecure: the chat's background, also when it's changed in the chat settings.
+        let chatBackgroundStore = ChatBackgroundStore.shared(for: clientProxy)
+        chatBackgroundStore.backgroundPublisher(for: roomProxy.id)
+            .sink { [weak self] background in
+                self?.state.chatBackground = background
+            }
+            .store(in: &cancellables)
+        Task {
+            await chatBackgroundStore.refresh()
+        }
+        
         Task {
             await updateVerificationBadge()
         }

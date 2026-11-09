@@ -130,6 +130,13 @@ class TimelineTableViewController: UIViewController {
         }
     }
     
+    /// 2ecure: whether a chat background (ChatBackgroundView) shows through behind the timeline.
+    var hasChatBackground = false {
+        didSet {
+            tableView.backgroundColor = hasChatBackground ? .clear : .compound.bgCanvasDefault
+        }
+    }
+    
     /// Used to hold an observable object that the typing indicator can use
     let typingMembers = TypingMembersObservableObject(members: [])
     

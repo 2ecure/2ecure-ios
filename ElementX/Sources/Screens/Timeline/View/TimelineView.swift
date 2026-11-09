@@ -83,6 +83,7 @@ struct TimelineView: View {
 /// A table view wrapper that displays the timeline of a room.
 struct TimelineViewRepresentable: UIViewControllerRepresentable {
     @EnvironmentObject private var viewModelContext: TimelineViewModel.Context
+    @Environment(\.hasChatBackground) private var hasChatBackground
     
     func makeUIViewController(context: Context) -> TimelineTableViewController {
         TimelineTableViewController(coordinator: context.coordinator,
@@ -97,6 +98,9 @@ struct TimelineViewRepresentable: UIViewControllerRepresentable {
     
     func updateUIViewController(_ uiViewController: TimelineTableViewController, context: Context) {
         context.coordinator.update(tableViewController: uiViewController)
+        if uiViewController.hasChatBackground != hasChatBackground {
+            uiViewController.hasChatBackground = hasChatBackground
+        }
     }
     
     func makeCoordinator() -> Coordinator {

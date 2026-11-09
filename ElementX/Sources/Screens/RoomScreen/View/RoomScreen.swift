@@ -36,6 +36,7 @@ struct RoomScreen: View {
     
     var body: some View {
         TimelineView(timelineContext: timelineContext)
+            .environment(\.hasChatBackground, context.viewState.chatBackground != nil)
             .overlay {
                 // Sits below the bottom-trailing overlay in z-order, so taps on the pill or
                 // buttons still go to them; taps anywhere else dismiss the pill.
@@ -71,7 +72,8 @@ struct RoomScreen: View {
                 .padding()
                 .animation(.elementDefault, value: markAsReadSource)
             }
-            .background(Color.compound.bgCanvasDefault.ignoresSafeArea())
+            // 2ecure: the chat's background (ChatBackgroundView draws the canvas colour without one).
+            .background(ChatBackgroundView(background: context.viewState.chatBackground, mediaProvider: context.mediaProvider))
             .topBanners([
                 TopBannerLayer(verticalBanners: [
                     TopBannerItem(pinnedItemsBanner, isVisible: context.viewState.shouldShowPinnedEventsBanner && !isVoiceOverEnabled),

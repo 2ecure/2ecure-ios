@@ -1,0 +1,14 @@
+/* 2ecure: strings of 2ecure's own features, read with TwoEcureL10n. */
+
+"chat_background_title" = "Arrière-plan de la discussion";
+"chat_background_none" = "Aucun arrière-plan";
+"chat_background_photo" = "Photo";
+"chat_background_colours" = "Couleurs";
+"chat_background_footer" = "Vous seul voyez cet arrière-plan. Il est enregistré dans votre compte, vos autres appareils l’affichent donc aussi. Une photo est stockée sur le serveur 2ecure sans chiffrement de bout en bout.";
+"chat_background_error" = "L’arrière-plan n’a pas pu être enregistré.";
+"chat_background_sky" = "Ciel";
+"chat_background_sea" = "Mer";
+"chat_background_forest" = "Forêt";
+"chat_background_sand" = "Sable";
+"chat_background_rose" = "Rose";
+"chat_background_lavender" = "Lavande";

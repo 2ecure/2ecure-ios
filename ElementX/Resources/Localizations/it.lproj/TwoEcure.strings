@@ -1,0 +1,14 @@
+/* 2ecure: strings of 2ecure's own features, read with TwoEcureL10n. */
+
+"chat_background_title" = "Sfondo della chat";
+"chat_background_none" = "Nessuno sfondo";
+"chat_background_photo" = "Foto";
+"chat_background_colours" = "Colori";
+"chat_background_footer" = "Solo tu vedi questo sfondo. Viene salvato nel tuo account, così lo mostrano anche i tuoi altri dispositivi. Una foto viene salvata sul server di 2ecure senza crittografia end-to-end.";
+"chat_background_error" = "Impossibile salvare lo sfondo.";
+"chat_background_sky" = "Cielo";
+"chat_background_sea" = "Mare";
+"chat_background_forest" = "Bosco";
+"chat_background_sand" = "Sabbia";
+"chat_background_rose" = "Rosa";
+"chat_background_lavender" = "Lavanda";

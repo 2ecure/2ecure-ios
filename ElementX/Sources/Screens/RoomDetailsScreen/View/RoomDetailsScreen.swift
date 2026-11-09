@@ -65,6 +65,9 @@ struct RoomDetailsScreen: View {
         .navigationBarTitleDisplayMode(.inline)
         .track(screen: .RoomDetails)
         .interactiveQuickLook(item: $context.mediaPreviewItem, allowEditing: false)
+        .sheet(item: $context.chatBackgroundPicker) { model in
+            ChatBackgroundPickerScreen(model: model)
+        }
     }
     
     // MARK: - Private
@@ -221,6 +224,14 @@ struct RoomDetailsScreen: View {
                 .onChange(of: context.isFavourite) { _, newValue in
                     context.send(viewAction: .toggleFavourite(isFavourite: newValue))
                 }
+            
+            // 2ecure: a background that only this account sees, on all its devices.
+            if !context.viewState.isSpace {
+                ListRow(label: .default(title: TwoEcureL10n.tr("chat_background_title"), icon: \.image),
+                        kind: .navigationLink {
+                            context.send(viewAction: .processTapChatBackground)
+                        })
+            }
             
             if context.viewState.canSeeSecurityAndPrivacy {
                 ListRow(label: .default(title: L10n.screenRoomDetailsSecurityAndPrivacyTitle, icon: \.lock),

@@ -53,6 +53,9 @@ struct RoomScreenViewState: BindableState {
     
     var isSharingLiveLocation = false
     
+    /// 2ecure: the background only this account sees behind the chat's timeline.
+    var chatBackground: ChatBackground?
+    
     var canSendMessage = true
     
     /// Whether or not starting a call is supported.
