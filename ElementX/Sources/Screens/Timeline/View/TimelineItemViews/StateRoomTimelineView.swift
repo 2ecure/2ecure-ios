@@ -16,6 +16,7 @@ struct StateRoomTimelineView: View {
             .font(.compound.bodySM)
             .multilineTextAlignment(.center)
             .foregroundColor(.compound.textSecondary)
+            .chatBackgroundLabel() // 2ecure
             .frame(maxWidth: .infinity, alignment: .center)
             .padding(.horizontal, 36.0)
             .padding(.vertical, 8.0)

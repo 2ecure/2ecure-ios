@@ -15,6 +15,7 @@ struct SeparatorRoomTimelineView: View {
         Text(timelineItem.timestamp.formattedDateSeparator())
             .font(.compound.bodySMSemibold)
             .foregroundColor(.compound.textPrimary)
+            .chatBackgroundLabel() // 2ecure
             .frame(maxWidth: .infinity)
             .multilineTextAlignment(.center)
             .padding(.horizontal, 36.0)

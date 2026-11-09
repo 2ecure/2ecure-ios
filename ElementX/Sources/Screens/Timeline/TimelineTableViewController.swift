@@ -134,6 +134,9 @@ class TimelineTableViewController: UIViewController {
     var hasChatBackground = false {
         didSet {
             tableView.backgroundColor = hasChatBackground ? .clear : .compound.bgCanvasDefault
+            // The cells pass it on to the views that draw straight on the background.
+            guard let snapshot = dataSource?.snapshot() else { return }
+            dataSource?.applySnapshotUsingReloadData(snapshot)
         }
     }
     
@@ -291,8 +294,9 @@ class TimelineTableViewController: UIViewController {
                     return cell
                 }
                 
-                cell.contentConfiguration = UIHostingConfiguration {
+                cell.contentConfiguration = UIHostingConfiguration { [hasChatBackground] in
                     TypingIndicatorView(typingMembers: self.typingMembers)
+                        .environment(\.hasChatBackground, hasChatBackground)
                 }
                 .margins(.vertical, 0)
                 .minSize(height: 0)
@@ -313,13 +317,14 @@ class TimelineTableViewController: UIViewController {
                     return cell
                 }
                 
-                cell.contentConfiguration = UIHostingConfiguration { [coordinator, hideTimelineMedia] in
+                cell.contentConfiguration = UIHostingConfiguration { [coordinator, hideTimelineMedia, hasChatBackground] in
                     RoomTimelineItemView(viewState: viewState)
                         .id(id)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .environmentObject(coordinator.context) // Attempted fix at a crash in TimelineItemContextMenu
                         .environment(\.timelineContext, coordinator.context)
                         .environment(\.shouldAutomaticallyLoadImages, !hideTimelineMedia)
+                        .environment(\.hasChatBackground, hasChatBackground) // 2ecure: labels behind dates and state events
                 }
                 .margins(.all, 0) // Margins are handled in the stylers
                 .minSize(height: 1)

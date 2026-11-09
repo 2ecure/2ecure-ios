@@ -12,18 +12,38 @@ import SwiftUI
 /// 2ecure: a background behind one chat's timeline that only the account's owner sees. An account's choices live in
 /// the global account data event `com.2ecure.chat_backgrounds`, so they follow it to its other devices. The format is
 /// shared with the Android app (docs/chat-backgrounds.md in the 2ecure repository):
-/// `{"rooms": {"!room:2ecure.com": {"type": "gradient", "id": "sky"}, "!other:2ecure.com": {"type": "image",
-/// "url": "mxc://…", "mimetype": "image/jpeg"}}}`.
+/// `{"rooms": {"!room:2ecure.com": {"type": "gradient", "id": "sky"}, "!other:2ecure.com": {"type": "pattern",
+/// "id": "regal", "colour": "#DCE6F2"}}}`.
 nonisolated enum ChatBackground: Equatable, Sendable {
     case gradient(ChatBackgroundGradient)
+    case customGradient(top: ChatBackgroundColour, bottom: ChatBackgroundColour)
+    case colour(ChatBackgroundColour)
+    case pattern(ChatBackgroundPattern, colour: ChatBackgroundColour)
     case image(url: String, mimeType: String?)
     
-    /// One room's entry; `nil` for a kind or gradient this version doesn't know.
+    /// One room's entry; `nil` for a kind, gradient or pattern this version doesn't know.
     init?(json: [String: Any]) {
         switch json["type"] as? String {
         case "gradient":
-            guard let id = json["id"] as? String, let gradient = ChatBackgroundGradient(rawValue: id) else { return nil }
-            self = .gradient(gradient)
+            if let id = json["id"] as? String {
+                guard let gradient = ChatBackgroundGradient(rawValue: id) else { return nil }
+                self = .gradient(gradient)
+            } else {
+                guard let hexes = json["colours"] as? [String], hexes.count == 2,
+                      let top = ChatBackgroundColour(hex: hexes[0]), let bottom = ChatBackgroundColour(hex: hexes[1]) else {
+                    return nil
+                }
+                self = .customGradient(top: top, bottom: bottom)
+            }
+        case "colour":
+            guard let colour = (json["colour"] as? String).flatMap(ChatBackgroundColour.init(hex:)) else { return nil }
+            self = .colour(colour)
+        case "pattern":
+            guard let pattern = (json["id"] as? String).flatMap(ChatBackgroundPattern.init(rawValue:)),
+                  let colour = (json["colour"] as? String).flatMap(ChatBackgroundColour.init(hex:)) else {
+                return nil
+            }
+            self = .pattern(pattern, colour: colour)
         case "image":
             guard let url = json["url"] as? String, url.hasPrefix("mxc://") else { return nil }
             self = .image(url: url, mimeType: json["mimetype"] as? String)
@@ -36,6 +56,12 @@ nonisolated enum ChatBackground: Equatable, Sendable {
         switch self {
         case .gradient(let gradient):
             ["type": "gradient", "id": gradient.rawValue]
+        case .customGradient(let top, let bottom):
+            ["type": "gradient", "colours": [top.hex, bottom.hex]]
+        case .colour(let colour):
+            ["type": "colour", "colour": colour.hex]
+        case .pattern(let pattern, let colour):
+            ["type": "pattern", "id": pattern.rawValue, "colour": colour.hex]
         case .image(let url, let mimeType):
             ["type": "image", "url": url, "mimetype": mimeType ?? "image/jpeg"]
         }
@@ -59,6 +85,63 @@ nonisolated enum ChatBackground: Equatable, Sendable {
         content["rooms"] = rooms
         return content
     }
+}
+
+/// 2ecure: a colour chosen for a chat background, stored as `#RRGGBB`.
+nonisolated struct ChatBackgroundColour: Hashable, Sendable {
+    let rgb: UInt32
+    
+    init(rgb: UInt32) {
+        self.rgb = rgb & 0xFFFFFF
+    }
+    
+    init?(hex: String) {
+        guard hex.count == 7, hex.hasPrefix("#"), let rgb = UInt32(hex.dropFirst(), radix: 16) else { return nil }
+        self.init(rgb: rgb)
+    }
+    
+    init(_ color: Color) {
+        var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
+        UIColor(color).getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+        func channel(_ value: CGFloat) -> UInt32 {
+            UInt32((min(max(value, 0), 1) * 255).rounded())
+        }
+        self.init(rgb: channel(red) << 16 | channel(green) << 8 | channel(blue))
+    }
+    
+    var hex: String {
+        String(format: "#%06X", rgb)
+    }
+    
+    var color: Color {
+        Color(red: red, green: green, blue: blue)
+    }
+    
+    /// The colour patterns draw in: the base a little darker, or lighter when the base is dark.
+    var motif: ChatBackgroundColour {
+        let luminance = 0.2126 * red + 0.7152 * green + 0.0722 * blue
+        let shift: (Double) -> Double = luminance > 0.5 ? { $0 * 0.84 } : { $0 + 0.2 * (1 - $0) }
+        func channel(_ value: Double) -> UInt32 {
+            UInt32((shift(value) * 255).rounded())
+        }
+        return ChatBackgroundColour(rgb: channel(red) << 16 | channel(green) << 8 | channel(blue))
+    }
+    
+    private var red: Double {
+        Double((rgb >> 16) & 0xFF) / 255
+    }
+    
+    private var green: Double {
+        Double((rgb >> 8) & 0xFF) / 255
+    }
+    
+    private var blue: Double {
+        Double(rgb & 0xFF) / 255
+    }
+    
+    static let defaultColour = ChatBackgroundColour(rgb: 0x5B8DEF)
+    static let defaultGradientBottom = ChatBackgroundColour(rgb: 0xB57BEE)
+    static let defaultPatternColour = ChatBackgroundColour(rgb: 0xDCE6F2)
 }
 
 /// 2ecure: the built-in backgrounds, top-to-bottom gradients in a light and a dark variant.
@@ -88,11 +171,20 @@ nonisolated enum ChatBackgroundGradient: String, CaseIterable, Identifiable, Sen
         case (.lavender, false): (0xE4DDF6, 0xF6F3FC)
         case (.lavender, true): (0x231D3A, 0x100D1A)
         }
-        return [Self.colour(top), Self.colour(bottom)]
+        return [ChatBackgroundColour(rgb: top).color, ChatBackgroundColour(rgb: bottom).color]
+    }
+}
+
+/// 2ecure: patterns drawn in code over a base colour (ChatBackgroundPatternView).
+nonisolated enum ChatBackgroundPattern: String, CaseIterable, Identifiable, Sendable {
+    case regal, dots, stripes, checks, waves, zigzag, stars
+    
+    var id: String {
+        rawValue
     }
     
-    private static func colour(_ rgb: UInt32) -> Color {
-        Color(red: Double((rgb >> 16) & 0xFF) / 255, green: Double((rgb >> 8) & 0xFF) / 255, blue: Double(rgb & 0xFF) / 255)
+    var name: String {
+        TwoEcureL10n.tr("chat_background_pattern_\(rawValue)")
     }
 }
 
