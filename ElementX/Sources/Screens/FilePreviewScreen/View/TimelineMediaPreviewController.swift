@@ -51,7 +51,16 @@ class TimelineMediaPreviewController: QLPreviewController {
     private var pageScrollView: UIScrollView? {
         view.firstScrollView()
     }
-    
+
+    /// Whether QuickLook shows its list button on the right and its close button on the left, as iOS 27 does.
+    /// 2ecure: iOS 27 keeps the iOS 26 order for apps built with an older SDK (ours come from Xcode 26), so the OS
+    /// version alone would put the details button over the close button.
+    private static let hasListButtonOnTheRight: Bool = {
+        guard #available(iOS 27, *) else { return false }
+        let sdkVersion = Bundle.main.object(forInfoDictionaryKey: "DTPlatformVersion") as? String ?? ""
+        return (Int(sdkVersion.prefix { $0 != "." }) ?? 0) >= 27
+    }()
+
     /// Whether the pages are being touched or are still moving, including a touch that hasn't started dragging yet.
     private var isSwiping: Bool {
         guard let pageScrollView else { return false }
@@ -224,8 +233,8 @@ class TimelineMediaPreviewController: QLPreviewController {
     
     private func updateBarButtons() {
         guard let topItem = navigationBar?.topItem else { return }
-        
-        if #available(iOS 27, *) {
+
+        if Self.hasListButtonOnTheRight {
             if topItem.rightBarButtonItem?.customView == nil {
                 topItem.rightBarButtonItem = UIBarButtonItem(customView: detailsButtonHostingController.view)
             }
