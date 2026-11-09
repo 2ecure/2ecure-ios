@@ -687,7 +687,7 @@ class TimelineController: TimelineControllerProtocol {
                                                     attachments: nil)
         
         let avatarURL: URL? = switch roomProxy.details.avatar {
-        case .room(_, _, let avatarURL),
+        case .room(_, _, let avatarURL, _),
              .space(_, _, let avatarURL):
             avatarURL
         case .heroes(let userProfiles):

@@ -92,7 +92,8 @@ extension BaseRoomInfoProxyProtocol {
             return .heroes(heroes.map(UserProfile.init))
         }
         
-        return .room(id: id, name: displayName, avatarURL: avatarURL)
+        // 2ecure: isDirect with at most two active members, the SDK's rule for isDM (not part of the base protocol).
+        return .room(id: id, name: displayName, avatarURL: avatarURL, isDM: isDirect && activeMembersCount <= 2)
     }
     
     var statusEmoji: Character? {

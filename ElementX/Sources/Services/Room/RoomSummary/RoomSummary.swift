@@ -186,7 +186,7 @@ nonisolated extension RoomSummary {
         } else if isDirect, avatarURL == nil, heroes.count == 1 {
             return .heroes(heroes)
         } else {
-            return .room(id: id, name: name, avatarURL: avatarURL)
+            return .room(id: id, name: name, avatarURL: avatarURL, isDM: isDM)
         }
     }
     

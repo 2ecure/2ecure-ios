@@ -22,10 +22,11 @@ struct RoomSummaryTests {
         let details = makeSummary(isDirect: false, isSpace: false, hasRoomAvatar: true, isTombstoned: false)
         
         switch details.avatar {
-        case .room(let id, let name, let avatarURL):
+        case .room(let id, let name, let avatarURL, let isDM):
             #expect(id == roomDetails.id)
             #expect(name == roomDetails.name)
             #expect(avatarURL == roomDetails.avatarURL)
+            #expect(!isDM, "2ecure: a room's avatar is a rounded square.")
         case .heroes:
             Issue.record("A room shouldn't use the heroes for its avatar.")
         case .space:
@@ -40,10 +41,11 @@ struct RoomSummaryTests {
         let details = makeSummary(isDirect: true, isSpace: false, hasRoomAvatar: true, isTombstoned: false)
         
         switch details.avatar {
-        case .room(let id, let name, let avatarURL):
+        case .room(let id, let name, let avatarURL, let isDM):
             #expect(id == roomDetails.id)
             #expect(name == roomDetails.name)
             #expect(avatarURL == roomDetails.avatarURL)
+            #expect(isDM, "2ecure: a DM keeps the round avatar, also with an avatar of its own.")
         case .heroes:
             Issue.record("A DM with an avatar set shouldn't use the heroes instead.")
         case .space:
@@ -103,6 +105,7 @@ struct RoomSummaryTests {
                     isJoined: true,
                     name: roomDetails.name,
                     isDirect: isDirect,
+                    isDM: isDirect,
                     isSpace: isSpace,
                     avatarURL: hasRoomAvatar ? roomDetails.avatarURL : nil,
                     heroes: heroes,

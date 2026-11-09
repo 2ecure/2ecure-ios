@@ -47,7 +47,7 @@ struct SpaceServiceRoom {
         } else if isDirect == true, avatarURL == nil, heroes.count == 1 {
             .heroes(heroes)
         } else {
-            .room(id: id, name: name, avatarURL: avatarURL)
+            .room(id: id, name: name, avatarURL: avatarURL, isDM: isDM == true)
         }
     }
     
