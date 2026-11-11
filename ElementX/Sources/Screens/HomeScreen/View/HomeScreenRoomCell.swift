@@ -75,11 +75,11 @@ struct HomeScreenRoomCell: View {
     private var header: some View {
         HStack(alignment: .top, spacing: 16) {
             HStack(spacing: 4) {
-                // 2ecure: a group icon tells rooms apart from one-to-one chats.
+                // 2ecure: a group icon tells rooms apart from one-to-one chats, a globe marks public rooms.
                 if !room.isDM {
-                    CompoundIcon(\.group, size: .small, relativeTo: .compound.bodyLGSemibold)
+                    CompoundIcon(room.isPublic ? \.public : \.group, size: .small, relativeTo: .compound.bodyLGSemibold)
                         .foregroundStyle(.compound.iconSecondary)
-                        .accessibilityLabel(L10n.commonRoom)
+                        .accessibilityLabel(room.isPublic ? L10n.commonPublicRoom : L10n.commonRoom)
                 }
                 
                 Text(room.name)

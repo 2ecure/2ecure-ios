@@ -36,6 +36,8 @@ nonisolated struct RoomSummary {
     let isDirect: Bool
     /// 2ecure: whether the room is a one-to-one chat (the SDK's `isDm`: direct and at most two members).
     var isDM = false
+    /// 2ecure: whether anyone may join the room (join rule `public`).
+    var isPublic = false
     let isSpace: Bool
     let avatarURL: URL?
     

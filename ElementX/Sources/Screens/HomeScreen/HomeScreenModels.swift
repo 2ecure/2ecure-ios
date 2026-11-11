@@ -213,6 +213,9 @@ struct HomeScreenRoom: Identifiable, Equatable {
     /// 2ecure: one-to-one chats show no group icon in the chat list.
     var isDM = false
     
+    /// 2ecure: public rooms show a globe instead of the group icon.
+    var isPublic = false
+    
     let isHighlighted: Bool
     
     let isFavourite: Bool
@@ -302,6 +305,7 @@ extension HomeScreenRoom {
                   name: summary.name,
                   isDirect: summary.isDirect,
                   isDM: summary.isDM,
+                  isPublic: summary.isPublic,
                   isHighlighted: isHighlighted,
                   isFavourite: summary.isFavourite,
                   timestamp: summary.lastMessageDate?.formattedMinimal(),

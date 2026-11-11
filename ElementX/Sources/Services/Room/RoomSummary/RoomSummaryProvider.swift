@@ -381,6 +381,7 @@ class RoomSummaryProvider: RoomSummaryProviderProtocol {
                            name: roomInfo.displayName ?? roomInfo.id,
                            isDirect: roomInfo.isDirect,
                            isDM: roomInfo.isDm,
+                           isPublic: roomInfo.joinRule.map(JoinRule.init(rustValue:)) == .public,
                            isSpace: roomInfo.isSpace,
                            avatarURL: roomInfo.avatarUrl.flatMap(URL.init(string:)),
                            heroes: roomInfo.heroes.map(UserProfile.init),

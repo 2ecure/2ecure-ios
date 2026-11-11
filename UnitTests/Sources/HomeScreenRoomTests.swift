@@ -48,6 +48,20 @@ struct HomeScreenRoomTests {
                                   isTombstoned: false)
     }
     
+    @Test("2ecure: a public room is marked for the globe icon, any other room is not")
+    mutating func publicRoom() {
+        setupRoomSummary(isMarkedUnread: false,
+                         unreadMessagesCount: 0,
+                         unreadMentionsCount: 0,
+                         unreadNotificationsCount: 0,
+                         notificationMode: .allMessages,
+                         hasOngoingCall: false)
+        #expect(!HomeScreenRoom(summary: roomSummary).isPublic)
+        
+        roomSummary.isPublic = true
+        #expect(HomeScreenRoom(summary: roomSummary).isPublic)
+    }
+    
     @Test
     mutating func noBadge() {
         setupRoomSummary(isMarkedUnread: false,
