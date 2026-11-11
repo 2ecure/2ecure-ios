@@ -13,6 +13,10 @@ enum ModerationAndSafetySettingsScreenViewModelAction {
 }
 
 struct ModerationAndSafetySettingsScreenViewState: BindableState {
+    /// 2ecure: who can find the account (docs/privacy.md); `nil` until read or while not chosen.
+    var discoverable: Bool?
+    var isWaitingDiscoverable = false
+    
     var hideInviteAvatars: Bool
     var isWaitingHideInviteAvatars = false
     
@@ -38,6 +42,7 @@ struct ModerationAndSafetySettingsScreenViewStateBindings {
 }
 
 enum ModerationAndSafetySettingsScreenViewAction {
+    case updateDiscoverable(Bool)
     case updateHideInviteAvatars(Bool)
     case updateTimelineMediaVisibility(TimelineMediaVisibility)
     case blockedUsers

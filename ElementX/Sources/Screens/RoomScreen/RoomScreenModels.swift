@@ -43,6 +43,8 @@ struct RoomScreenViewState: BindableState {
     var roomTitle = ""
     var roomAvatar: RoomAvatar
     var dmRecipientDetails = RoomHeaderView.DMRecipientDetails()
+    /// 2ecure: «Online» or «Last seen …» under the name of a one-to-one chat (docs/privacy.md).
+    var presenceSubtitle: String?
     
     var lastScrollDirection: ScrollDirection?
     // This is used to control the banner

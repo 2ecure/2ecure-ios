@@ -49,16 +49,42 @@ class ModerationAndSafetySettingsScreenViewModel: ModerationAndSafetySettingsScr
             .map { $0?.isEmpty == false }
             .weakAssign(to: \.state.showBlockedUsers, on: self)
             .store(in: &cancellables)
+        
+        Task { [weak self] in await self?.loadDiscoverable() }
     }
     
     override func process(viewAction: ModerationAndSafetySettingsScreenViewAction) {
         switch viewAction {
+        case let .updateDiscoverable(value):
+            Task { [weak self] in await self?.updateDiscoverable(value) }
         case let .updateHideInviteAvatars(value):
             hideInviteAvatarsTask = Task { [weak self] in await self?.updateHideInviteAvatars(value) }
         case let .updateTimelineMediaVisibility(value):
             timelineMediaVisibilityTask = Task { [weak self] in await self?.updateTimelineMediaVisibility(value) }
         case .blockedUsers:
             actionsSubject.send(.blockedUsers)
+        }
+    }
+    
+    // MARK: - 2ecure: who can find you
+    
+    private func loadDiscoverable() async {
+        if case .success(let discoverable) = await PrivacyChoice.discoverable(clientProxy: clientProxy), !state.isWaitingDiscoverable {
+            state.discoverable = discoverable
+        }
+    }
+    
+    private func updateDiscoverable(_ value: Bool) async {
+        guard !state.isWaitingDiscoverable, value != state.discoverable else { return }
+        let previousState = state.discoverable
+        state.isWaitingDiscoverable = true
+        state.discoverable = value
+        defer { state.isWaitingDiscoverable = false }
+        
+        let isSaved = await PrivacyChoice.setDiscoverable(value, clientProxy: clientProxy)
+        if !isSaved {
+            state.discoverable = previousState
+            userIndicatorController.submitIndicator(.init(title: TwoEcureL10n.tr("privacy_choice_error")))
         }
     }
     

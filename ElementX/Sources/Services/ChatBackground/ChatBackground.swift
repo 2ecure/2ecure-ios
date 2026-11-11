@@ -376,4 +376,8 @@ nonisolated enum TwoEcureL10n {
         }
         return key
     }
+    
+    static func tr(_ key: String, _ arguments: CVarArg...) -> String {
+        String(format: tr(key), locale: Locale.current, arguments: arguments)
+    }
 }

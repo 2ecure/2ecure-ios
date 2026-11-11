@@ -15,6 +15,8 @@ struct RoomHeaderView: View {
     struct DMRecipientDetails {
         var statusEmoji: Character?
         var verification: UserIdentityVerificationState?
+        /// 2ecure: a green dot on the avatar (docs/privacy.md).
+        var isOnline = false
     }
     
     let roomName: String
@@ -96,6 +98,12 @@ struct RoomHeaderView: View {
         RoomAvatarImage(avatar: roomAvatar,
                         avatarSize: .room(on: .timeline),
                         mediaProvider: mediaProvider)
+            .overlay(alignment: .bottomTrailing) {
+                if dmRecipientDetails.isOnline {
+                    OnlineDot(size: 10)
+                        .offset(x: 1, y: 1)
+                }
+            }
             .accessibilityIdentifier(A11yIdentifiers.roomScreen.avatar)
     }
     

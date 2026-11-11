@@ -32,6 +32,7 @@ final class PresenceService {
         
         observeApplicationState()
         observeSharePresence()
+        observeHeartbeat()
         reportCurrentState()
     }
     
@@ -72,6 +73,19 @@ final class PresenceService {
             .removeDuplicates()
             .sink { [weak self] _ in
                 self?.reportCurrentState()
+            }
+            .store(in: &cancellables)
+    }
+    
+    /// 2ecure: Synapse's sliding sync doesn't keep presence alive (docs/privacy.md), so «online» is repeated every
+    /// minute while the app is in the foreground; the server's `presence.sync_online_timeout` is 3 minutes.
+    private func observeHeartbeat() {
+        Timer.publish(every: 60, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in
+                guard let self, desiredPresence == .online, sendTask == nil else { return }
+                lastSentPresence = nil
+                reportCurrentState()
             }
             .store(in: &cancellables)
     }

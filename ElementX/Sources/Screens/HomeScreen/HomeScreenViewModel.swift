@@ -176,6 +176,8 @@ class HomeScreenViewModel: HomeScreenViewModelType, HomeScreenViewModelProtocol 
         
         updateRooms()
         
+        setupPresenceStatus()
+        
         if let roomSummaryProvider {
             updateRoomListMode(with: roomSummaryProvider.statePublisher.value,
                                hasRooms: !roomSummaryProvider.roomListPublisher.value.isEmpty)
@@ -307,6 +309,35 @@ class HomeScreenViewModel: HomeScreenViewModelType, HomeScreenViewModelProtocol 
         }
     }
     
+    // MARK: - 2ecure: online status (docs/privacy.md)
+    
+    private func setupPresenceStatus() {
+        PresenceStatusStore.shared(for: userSession.clientProxy).statusesPublisher
+            .combineLatest(userSettings.account.sharePresencePublisher)
+            .map { statuses, sharePresence in
+                sharePresence ? Set(statuses.filter { $0.value.isOnline }.keys) : []
+            }
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .weakAssign(to: \.state.onlineUserIDs, on: self)
+            .store(in: &cancellables)
+        
+        Timer.publish(every: 60, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in self?.refreshPresenceStatus() }
+            .store(in: &cancellables)
+    }
+    
+    /// Asks for the status of the people in the most recent one-to-one chats, while the app is in the foreground and
+    /// shares its own presence; the store asks the server at most once a minute per person.
+    private func refreshPresenceStatus() {
+        guard userSettings.account.sharePresence, UIApplication.shared.applicationState == .active else { return }
+        let userIDs = Array(state.rooms.compactMap(\.dmUserID).prefix(30))
+        guard !userIDs.isEmpty else { return }
+        let store = PresenceStatusStore.shared(for: userSession.clientProxy)
+        Task { await store.refresh(userIDs) }
+    }
+
     // MARK: - Private
     
     private func updateFilter() {
@@ -394,6 +425,7 @@ class HomeScreenViewModel: HomeScreenViewModelType, HomeScreenViewModelProtocol 
         }
         
         state.rooms = rooms
+        refreshPresenceStatus()
     }
     
     private func markRoomAsFavourite(_ roomID: String, isFavourite: Bool) async {

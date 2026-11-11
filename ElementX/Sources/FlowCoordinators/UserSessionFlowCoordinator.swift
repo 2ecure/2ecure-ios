@@ -36,6 +36,11 @@ class UserSessionFlowCoordinator: FlowCoordinatorProtocol {
     
     private let onboardingFlowCoordinator: OnboardingFlowCoordinator
     private let onboardingStackCoordinator: NavigationStackCoordinator
+    
+    // 2ecure: the question «Who can find you?» (docs/privacy.md).
+    private var hasSyncedOnce = false
+    private var isCheckingPrivacyChoice = false
+    private var privacyChoiceCoordinator: PrivacyChoiceScreenCoordinator?
     private let chatsTabFlowCoordinator: ChatsTabFlowCoordinator
     private let chatsTabDetails: NavigationTabCoordinator<HomeTab>.TabDetails
     private let spacesTabFlowCoordinator: SpacesTabFlowCoordinator
@@ -324,12 +329,30 @@ class UserSessionFlowCoordinator: FlowCoordinatorProtocol {
                 
                 switch action {
                 case .requestPresentation(let animated):
+                    // 2ecure: onboarding replaces the privacy question, which comes back once it is done.
+                    privacyChoiceCoordinator = nil
                     navigationTabCoordinator.setFullScreenCoverCoordinator(onboardingStackCoordinator, animated: animated)
                 case .dismiss:
                     navigationTabCoordinator.setFullScreenCoverCoordinator(nil)
+                    Task { [weak self] in
+                        // Once the onboarding's cover has gone.
+                        try? await Task.sleep(for: .seconds(1))
+                        self?.attemptPresentingPrivacyChoice()
+                    }
                 case .logoutConfirmed:
                     actionsSubject.send(.logout)
                 }
+            }
+            .store(in: &cancellables)
+        
+        // 2ecure: ask who can find the account once sync has brought its account data (docs/privacy.md).
+        userSession.clientProxy.actionsPublisher
+            .filter(\.isSyncUpdate)
+            .first()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.hasSyncedOnce = true
+                self?.attemptPresentingPrivacyChoice()
             }
             .store(in: &cancellables)
         
@@ -364,6 +387,36 @@ class UserSessionFlowCoordinator: FlowCoordinatorProtocol {
         if onboardingFlowCoordinator.shouldStart {
             clearRoute(animated: false)
             onboardingFlowCoordinator.start()
+        }
+    }
+    
+    // MARK: - 2ecure: privacy choice
+    
+    /// Asks «Who can find you?» while the account has no choice, after the first sync and never over onboarding.
+    private func attemptPresentingPrivacyChoice() {
+        guard hasSyncedOnce, !isCheckingPrivacyChoice, privacyChoiceCoordinator == nil,
+              navigationTabCoordinator.fullScreenCoverCoordinator == nil else {
+            return
+        }
+        isCheckingPrivacyChoice = true
+        
+        Task { [weak self] in
+            guard let self else { return }
+            defer { isCheckingPrivacyChoice = false }
+            
+            // A choice that couldn't be read is asked for at the next start, not over an existing one.
+            guard case .success(.none) = await PrivacyChoice.discoverable(clientProxy: userSession.clientProxy),
+                  privacyChoiceCoordinator == nil,
+                  navigationTabCoordinator.fullScreenCoverCoordinator == nil else {
+                return
+            }
+            
+            let coordinator = PrivacyChoiceScreenCoordinator(clientProxy: userSession.clientProxy) { [weak self] in
+                self?.privacyChoiceCoordinator = nil
+                self?.navigationTabCoordinator.setFullScreenCoverCoordinator(nil)
+            }
+            privacyChoiceCoordinator = coordinator
+            navigationTabCoordinator.setFullScreenCoverCoordinator(coordinator)
         }
     }
     

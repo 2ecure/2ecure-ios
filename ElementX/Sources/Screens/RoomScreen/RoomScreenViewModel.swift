@@ -91,6 +91,8 @@ class RoomScreenViewModel: RoomScreenViewModelType, RoomScreenViewModelProtocol 
         Task {
             await updateVerificationBadge()
         }
+        
+        setupPresenceStatus()
     }
     
     override func process(viewAction: RoomScreenViewAction) {
@@ -170,6 +172,44 @@ class RoomScreenViewModel: RoomScreenViewModelType, RoomScreenViewModelProtocol 
         .store(in: &cancellables)
         
         state.bindings.mediaPreviewViewModel = mediaPreviewViewModel
+    }
+    
+    // MARK: - 2ecure: online status (docs/privacy.md)
+    
+    private func setupPresenceStatus() {
+        PresenceStatusStore.shared(for: clientProxy).statusesPublisher
+            .combineLatest(userSettings.account.sharePresencePublisher)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] statuses, sharePresence in
+                guard let self else { return }
+                let status = sharePresence ? dmRecipientID.flatMap { statuses[$0] } : nil
+                state.dmRecipientDetails.isOnline = status?.isOnline ?? false
+                state.presenceSubtitle = status?.subtitle()
+            }
+            .store(in: &cancellables)
+        
+        roomProxy.membersPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in self?.refreshPresenceStatus() }
+            .store(in: &cancellables)
+        
+        Timer.publish(every: 60, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in self?.refreshPresenceStatus() }
+            .store(in: &cancellables)
+    }
+    
+    private var dmRecipientID: String? {
+        guard roomProxy.infoPublisher.value.isDM else { return nil }
+        return roomProxy.membersPublisher.value.first { $0.userID != roomProxy.ownUserID }?.userID
+    }
+    
+    private func refreshPresenceStatus() {
+        guard let dmRecipientID, userSettings.account.sharePresence, UIApplication.shared.applicationState == .active else {
+            return
+        }
+        let store = PresenceStatusStore.shared(for: clientProxy)
+        Task { await store.refresh([dmRecipientID]) }
     }
     
     // MARK: - Private

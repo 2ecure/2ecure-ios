@@ -319,6 +319,8 @@ protocol ClientProxyProtocol: AnyObject {
     func setAccountData(eventType: String, content: String) async -> Result<Void, ClientProxyError>
     /// Uploads data as plain, unencrypted media and returns its `mxc://` URL (2ecure: chat background photos).
     func uploadMedia(data: Data, mimeType: String) async -> Result<String, ClientProxyError>
+    /// Someone's online status from the homeserver; `nil` when it doesn't share it (2ecure: online status).
+    func presence(of userID: String) async -> Result<PresenceStatus?, ClientProxyError>
 }
 
 // 2ecure: defaults for the generated ClientProxyMock, which 2ecure's builds don't regenerate.
@@ -333,5 +335,9 @@ extension ClientProxyProtocol {
     
     func uploadMedia(data: Data, mimeType: String) async -> Result<String, ClientProxyError> {
         .failure(.invalidMedia)
+    }
+    
+    func presence(of userID: String) async -> Result<PresenceStatus?, ClientProxyError> {
+        .success(nil)
     }
 }

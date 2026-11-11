@@ -13,6 +13,7 @@ struct ModerationAndSafetySettingsScreen: View {
     
     var body: some View {
         Form {
+            discoverableSection
             sharePresenceSection
             invitesSection
             timelineMediaSection
@@ -23,6 +24,22 @@ struct ModerationAndSafetySettingsScreen: View {
         .navigationBarTitleDisplayMode(.inline)
     }
     
+    /// 2ecure: who can find the account in the search (docs/privacy.md).
+    private var discoverableSection: some View {
+        Section {
+            PrivacyChoiceRows(selection: context.viewState.discoverable) { value in
+                context.send(viewAction: .updateDiscoverable(value))
+            }
+            .disabled(context.viewState.isWaitingDiscoverable)
+        } header: {
+            Text(TwoEcureL10n.tr("privacy_choice_title"))
+                .compoundListSectionHeader()
+        } footer: {
+            Text(TwoEcureL10n.tr("privacy_choice_message"))
+                .compoundListSectionFooter()
+        }
+    }
+    
     private var sharePresenceSection: some View {
         Section {
             ListRow(label: .plain(title: L10n.screenAdvancedSettingsSharePresence,
@@ -31,6 +48,10 @@ struct ModerationAndSafetySettingsScreen: View {
         } header: {
             Text(L10n.screenModerationAndSafetySharePresenceHeading)
                 .compoundListSectionHeader()
+        } footer: {
+            // 2ecure: the switch also covers the online status (docs/privacy.md).
+            Text(TwoEcureL10n.tr("presence_share_footer"))
+                .compoundListSectionFooter()
         }
     }
     

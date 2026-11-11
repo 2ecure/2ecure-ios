@@ -38,6 +38,7 @@ struct HomeScreenRoomList: View {
                 HomeScreenRoomCell(room: room,
                                    isSelected: isSelected,
                                    mediaProvider: context.mediaProvider,
+                                   isOnline: room.dmUserID.map(context.viewState.onlineUserIDs.contains) ?? false,
                                    action: context.send)
                     .simultaneousGesture(TapGesture(count: 2).onEnded {
                         context.send(viewAction: .detachRoom(roomIdentifier: room.id))

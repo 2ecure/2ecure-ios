@@ -28,3 +28,17 @@
 "chat_background_pattern_waves" = "Onde";
 "chat_background_pattern_zigzag" = "Zigzag";
 "chat_background_pattern_stars" = "Stelle";
+
+/* Privacy: who can find you, online status (docs/privacy.md). */
+"privacy_choice_title" = "Chi può trovarti?";
+"privacy_choice_message" = "Scegli chi ti trova nella ricerca quando inizia una nuova chat.";
+"privacy_choice_everyone" = "Tutti su 2ecure";
+"privacy_choice_everyone_description" = "Tutti su 2ecure ti trovano nella ricerca e vi vedono il tuo nome e la tua immagine del profilo.";
+"privacy_choice_contacts" = "Solo le persone con cui chatto";
+"privacy_choice_contacts_description" = "Non compari nella ricerca. Chi condivide già una chat con te ti trova comunque, e solo queste persone vedono la tua immagine del profilo.";
+"privacy_choice_footer" = "Chi conosce il tuo indirizzo può comunque invitarti. Puoi cambiare questa scelta in qualsiasi momento nelle impostazioni.";
+"privacy_choice_continue" = "Continua";
+"privacy_choice_error" = "Non è stato possibile salvare la tua scelta. Riprova.";
+"presence_online" = "Online";
+"presence_last_seen" = "Ultimo accesso %@";
+"presence_share_footer" = "Vale anche per il tuo stato online: se è disattivato, nessuno vede se sei online e tu non lo vedi per gli altri.";

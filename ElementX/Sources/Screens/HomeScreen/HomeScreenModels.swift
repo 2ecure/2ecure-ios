@@ -106,6 +106,9 @@ struct HomeScreenViewState: BindableState {
     var rooms: [HomeScreenRoom] = []
     var roomListMode: HomeScreenRoomListMode = .awaitingCachedRooms
     
+    /// 2ecure: the people in one-to-one chats who are online (docs/privacy.md).
+    var onlineUserIDs: Set<String> = []
+    
     var hasPendingInvitations = false
     
     var selectedRoomID: String?
@@ -216,6 +219,9 @@ struct HomeScreenRoom: Identifiable, Equatable {
     /// 2ecure: public rooms show a globe instead of the group icon.
     var isPublic = false
     
+    /// 2ecure: the other person in a one-to-one chat, whose online status the chat list shows.
+    var dmUserID: String?
+    
     let isHighlighted: Bool
     
     let isFavourite: Bool
@@ -306,6 +312,7 @@ extension HomeScreenRoom {
                   isDirect: summary.isDirect,
                   isDM: summary.isDM,
                   isPublic: summary.isPublic,
+                  dmUserID: summary.isDM ? summary.heroes.first?.userID : nil,
                   isHighlighted: isHighlighted,
                   isFavourite: summary.isFavourite,
                   timestamp: summary.lastMessageDate?.formattedMinimal(),

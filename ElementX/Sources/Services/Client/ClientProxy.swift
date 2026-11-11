@@ -590,6 +590,33 @@ class ClientProxy: ClientProxyProtocol {
         }
     }
     
+    // 2ecure: online status (PresenceStatusStore). The SDK can set the own presence but not read anyone's, so this
+    // asks the homeserver with the session's current access token.
+    func presence(of userID: String) async -> Result<PresenceStatus?, ClientProxyError> {
+        guard let session = try? client.session(),
+              let encodedUserID = userID.addingPercentEncoding(withAllowedCharacters: .alphanumerics),
+              let url = URL(string: session.homeserverUrl.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+                  + "/_matrix/client/v3/presence/\(encodedUserID)/status") else {
+            return .failure(.forbiddenAccess)
+        }
+        var request = URLRequest(url: url, timeoutInterval: 15)
+        request.setValue("Bearer \(session.accessToken)", forHTTPHeaderField: "Authorization")
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            switch (response as? HTTPURLResponse)?.statusCode {
+            case 200:
+                return .success(PresenceStatus(json: data))
+            case 403, 404:
+                // Synapse shares presence only between people who share a room.
+                return .success(nil)
+            default:
+                return .failure(.forbiddenAccess)
+            }
+        } catch {
+            return .failure(.sdkError(error))
+        }
+    }
+    
     func roomForIdentifier(_ identifier: String) async -> RoomProxyType? {
         let shouldAwait = roomsToAwait.remove(identifier) != nil
         

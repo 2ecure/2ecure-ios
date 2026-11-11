@@ -28,3 +28,17 @@
 "chat_background_pattern_waves" = "Waves";
 "chat_background_pattern_zigzag" = "Zigzag";
 "chat_background_pattern_stars" = "Stars";
+
+/* Privacy: who can find you, online status (docs/privacy.md). */
+"privacy_choice_title" = "Who can find you?";
+"privacy_choice_message" = "Choose who finds you in search when they start a new chat.";
+"privacy_choice_everyone" = "Everyone on 2ecure";
+"privacy_choice_everyone_description" = "Everyone on 2ecure finds you in search and sees your name and profile picture there.";
+"privacy_choice_contacts" = "Only people I chat with";
+"privacy_choice_contacts_description" = "You don’t appear in search. People who already share a chat with you still find you, and only they see your profile picture.";
+"privacy_choice_footer" = "People who know your address can still invite you. You can change this any time in Settings.";
+"privacy_choice_continue" = "Continue";
+"privacy_choice_error" = "Your choice could not be saved. Please try again.";
+"presence_online" = "Online";
+"presence_last_seen" = "Last seen %@";
+"presence_share_footer" = "This also covers your online status: with it off, nobody sees whether you are online, and you don’t see it for others either.";

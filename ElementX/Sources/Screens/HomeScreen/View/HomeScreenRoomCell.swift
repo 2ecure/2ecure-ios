@@ -18,6 +18,8 @@ struct HomeScreenRoomCell: View {
     let room: HomeScreenRoom
     let isSelected: Bool
     let mediaProvider: MediaProviderProtocol!
+    /// 2ecure: whether the other person in a one-to-one chat is online.
+    var isOnline = false
     let action: (HomeScreenViewAction) -> Void
     
     private let verticalInsets = 12.0
@@ -40,6 +42,7 @@ struct HomeScreenRoomCell: View {
             .accessibilityElement(children: .combine)
         }
         .buttonStyle(HomeScreenRoomCellButtonStyle(isSelected: isSelected))
+        .accessibilityValue(isOnline ? TwoEcureL10n.tr("presence_online") : "")
         .accessibilityIdentifier(A11yIdentifiers.homeScreen.roomName(room.name))
         .accessibilityHidden(redactionReasons.contains(.placeholder) ? true : false)
     }
@@ -51,6 +54,12 @@ struct HomeScreenRoomCell: View {
                             avatarSize: .room(on: .chats),
                             mediaProvider: mediaProvider)
                 .dynamicTypeSize(dynamicTypeSize < .accessibility1 ? dynamicTypeSize : .accessibility1)
+                .overlay(alignment: .bottomTrailing) {
+                    if isOnline {
+                        OnlineDot(size: 14)
+                            .offset(x: 1, y: 1)
+                    }
+                }
                 .accessibilityHidden(true)
         }
     }

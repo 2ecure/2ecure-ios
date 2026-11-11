@@ -28,3 +28,17 @@
 "chat_background_pattern_waves" = "Wellen";
 "chat_background_pattern_zigzag" = "Zickzack";
 "chat_background_pattern_stars" = "Sterne";
+
+/* Privacy: who can find you, online status (docs/privacy.md). */
+"privacy_choice_title" = "Wer darf dich finden?";
+"privacy_choice_message" = "Lege fest, wer dich in der Suche findet, wenn jemand einen neuen Chat beginnt.";
+"privacy_choice_everyone" = "Alle auf 2ecure";
+"privacy_choice_everyone_description" = "Alle auf 2ecure finden dich in der Suche und sehen dort deinen Namen und dein Profilbild.";
+"privacy_choice_contacts" = "Nur Personen, mit denen ich chatte";
+"privacy_choice_contacts_description" = "Du erscheinst nicht in der Suche. Wer schon einen Chat mit dir teilt, findet dich weiterhin, und nur diese Personen sehen dein Profilbild.";
+"privacy_choice_footer" = "Wer deine Adresse kennt, kann dich trotzdem einladen. Du kannst das jederzeit in den Einstellungen ändern.";
+"privacy_choice_continue" = "Weiter";
+"privacy_choice_error" = "Deine Auswahl konnte nicht gespeichert werden. Bitte versuche es noch einmal.";
+"presence_online" = "Online";
+"presence_last_seen" = "Zuletzt online %@";
+"presence_share_footer" = "Gilt auch für den Online-Status: Ist ‹Präsenz teilen› aus, sieht niemand, ob du online bist, und du siehst es bei anderen auch nicht.";
