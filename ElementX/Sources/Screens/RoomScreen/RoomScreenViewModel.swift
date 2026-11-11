@@ -204,12 +204,16 @@ class RoomScreenViewModel: RoomScreenViewModelType, RoomScreenViewModelProtocol 
         return roomProxy.membersPublisher.value.first { $0.userID != roomProxy.ownUserID }?.userID
     }
     
+    private var isPresenceStatusAllowed: Bool {
+        userSettings.account.sharePresence && UIApplication.shared.applicationState == .active
+    }
+    
     private func refreshPresenceStatus() {
-        guard let dmRecipientID, userSettings.account.sharePresence, UIApplication.shared.applicationState == .active else {
-            return
-        }
+        guard let dmRecipientID, isPresenceStatusAllowed else { return }
         let store = PresenceStatusStore.shared(for: clientProxy)
-        Task { await store.refresh([dmRecipientID]) }
+        Task { [weak self] in
+            await store.refresh([dmRecipientID]) { self?.isPresenceStatusAllowed ?? false }
+        }
     }
     
     // MARK: - Private

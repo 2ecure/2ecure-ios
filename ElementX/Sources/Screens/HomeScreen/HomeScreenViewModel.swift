@@ -24,6 +24,9 @@ class HomeScreenViewModel: HomeScreenViewModelType, HomeScreenViewModelProtocol 
     
     private let roomSummaryProvider: RoomSummaryProviderProtocol?
     
+    /// 2ecure: the running request for the chat list's online status (docs/privacy.md).
+    private var presenceRefreshTask: Task<Void, Never>?
+    
     private var actionsSubject: PassthroughSubject<HomeScreenViewModelAction, Never> = .init()
     var actions: AnyPublisher<HomeScreenViewModelAction, Never> {
         actionsSubject.eraseToAnyPublisher()
@@ -326,16 +329,28 @@ class HomeScreenViewModel: HomeScreenViewModelType, HomeScreenViewModelProtocol 
             .autoconnect()
             .sink { [weak self] _ in self?.refreshPresenceStatus() }
             .store(in: &cancellables)
+        
+        userSettings.account.sharePresencePublisher
+            .filter { !$0 }
+            .sink { [weak self] _ in self?.presenceRefreshTask?.cancel() }
+            .store(in: &cancellables)
+    }
+    
+    private var isPresenceStatusAllowed: Bool {
+        userSettings.account.sharePresence && UIApplication.shared.applicationState == .active
     }
     
     /// Asks for the status of the people in the most recent one-to-one chats, while the app is in the foreground and
     /// shares its own presence; the store asks the server at most once a minute per person.
     private func refreshPresenceStatus() {
-        guard userSettings.account.sharePresence, UIApplication.shared.applicationState == .active else { return }
+        guard presenceRefreshTask == nil, isPresenceStatusAllowed else { return }
         let userIDs = Array(state.rooms.compactMap(\.dmUserID).prefix(30))
         guard !userIDs.isEmpty else { return }
         let store = PresenceStatusStore.shared(for: userSession.clientProxy)
-        Task { await store.refresh(userIDs) }
+        presenceRefreshTask = Task { [weak self] in
+            await store.refresh(userIDs) { self?.isPresenceStatusAllowed ?? false }
+            self?.presenceRefreshTask = nil
+        }
     }
 
     // MARK: - Private

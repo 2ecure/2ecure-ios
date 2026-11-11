@@ -53,10 +53,14 @@ final class PresenceStatusStore {
         return store
     }
     
-    private static let maximumAge: TimeInterval = 50
+    /// Failed requests wait like answered ones, so a failing server doesn't get a request storm.
+    private static let retryAfter: TimeInterval = 50
+    /// An old answer isn't shown for longer than the server keeps someone online without news.
+    private static let expiry: TimeInterval = 180
     
     private weak var clientProxy: ClientProxyProtocol?
-    private var fetched: [String: Date] = [:]
+    private var attempted: [String: Date] = [:]
+    private var answered: [String: Date] = [:]
     private var inFlight: Set<String> = []
     private let statusesSubject = CurrentValueSubject<[String: PresenceStatus], Never>([:])
     
@@ -68,24 +72,27 @@ final class PresenceStatusStore {
         statusesSubject.value[userID]
     }
     
-    /// Asks the homeserver for the people whose status is older than a minute.
-    func refresh(_ userIDs: [String]) async {
+    /// Asks the homeserver for the people whose status is older than a minute, one after the other while `isAllowed`
+    /// (the app is in the foreground and shares its own presence).
+    func refresh(_ userIDs: [String], isAllowed: () -> Bool) async {
         let now = Date.now
         let due = userIDs.filter { userID in
-            !inFlight.contains(userID) && fetched[userID].map { now.timeIntervalSince($0) > Self.maximumAge } ?? true
+            !inFlight.contains(userID) && attempted[userID].map { now.timeIntervalSince($0) > Self.retryAfter } ?? true
         }
         inFlight.formUnion(due)
         defer { inFlight.subtract(due) }
         
         for userID in due {
-            guard let clientProxy, !Task.isCancelled else { return }
+            guard let clientProxy, !Task.isCancelled, isAllowed() else { return }
+            attempted[userID] = .now
             switch await clientProxy.presence(of: userID) {
             case .success(let status):
-                fetched[userID] = .now
+                answered[userID] = .now
                 statusesSubject.value[userID] = status
             case .failure:
-                // Unknown, e.g. while the access token is being refreshed: keep the last answer, ask again next time.
-                break
+                if answered[userID].map({ Date.now.timeIntervalSince($0) > Self.expiry }) ?? true {
+                    statusesSubject.value[userID] = nil
+                }
             }
         }
     }

@@ -17,6 +17,7 @@ final class PrivacyChoiceModel {
     
     @ObservationIgnored private let clientProxy: ClientProxyProtocol
     @ObservationIgnored private let onDone: () -> Void
+    @ObservationIgnored private var isDone = false
     
     init(clientProxy: ClientProxyProtocol, onDone: @escaping () -> Void) {
         self.clientProxy = clientProxy
@@ -28,11 +29,39 @@ final class PrivacyChoiceModel {
         isSaving = true
         defer { isSaving = false }
         
+        // A choice made on another device in the meantime is kept, not overwritten.
+        if await hasChoice() {
+            finish()
+            return
+        }
         if await PrivacyChoice.setDiscoverable(selection, clientProxy: clientProxy) {
-            onDone()
+            finish()
         } else {
             isShowingError = true
         }
+    }
+    
+    /// Closes the question once a choice made on another device has synced.
+    func watchForChoiceMadeElsewhere() async {
+        while !Task.isCancelled, !isDone {
+            try? await Task.sleep(for: .seconds(10))
+            if !isSaving, await hasChoice() {
+                finish()
+            }
+        }
+    }
+    
+    private func hasChoice() async -> Bool {
+        if case .success(.some) = await PrivacyChoice.discoverable(clientProxy: clientProxy) {
+            return true
+        }
+        return false
+    }
+    
+    private func finish() {
+        guard !isDone else { return }
+        isDone = true
+        onDone()
     }
 }
 
@@ -84,6 +113,9 @@ struct PrivacyChoiceScreen: View {
             }
             .alert(TwoEcureL10n.tr("privacy_choice_error"), isPresented: $model.isShowingError) {
                 Button(L10n.actionOk) { }
+            }
+            .task {
+                await model.watchForChoiceMadeElsewhere()
             }
         }
         .interactiveDismissDisabled()
