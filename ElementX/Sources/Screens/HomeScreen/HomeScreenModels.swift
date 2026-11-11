@@ -312,7 +312,7 @@ extension HomeScreenRoom {
                   isDirect: summary.isDirect,
                   isDM: summary.isDM,
                   isPublic: summary.isPublic,
-                  dmUserID: summary.isDM ? summary.heroes.first?.userID : nil,
+                  dmUserID: summary.isDM ? summary.heroes.first?.id : nil,
                   isHighlighted: isHighlighted,
                   isFavourite: summary.isFavourite,
                   timestamp: summary.lastMessageDate?.formattedMinimal(),
