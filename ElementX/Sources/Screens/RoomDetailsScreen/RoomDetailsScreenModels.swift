@@ -87,7 +87,12 @@ struct RoomDetailsScreenViewState: BindableState {
     }
     
     var hasTopicSection: Bool {
-        topic != nil || canEditRoomTopic
+        // 2ecure: a direct chat is not a room. It shows a topic someone already set, but offers no «Add topic»
+        // (the way into «Edit details», which the missing «Edit» button already keeps closed), as on Android.
+        if isDirect {
+            return !(topic?.characters.isEmpty ?? true)
+        }
+        return topic != nil || canEditRoomTopic
     }
     
     var bindings: RoomDetailsScreenViewStateBindings

@@ -142,7 +142,7 @@ struct RoomDetailsScreen: View {
                     .onTapGesture {
                         isTopicExpanded.toggle()
                     }
-                } else {
+                } else if !context.viewState.isDirect {
                     ListRow(label: .plain(title: L10n.screenRoomDetailsAddTopicTitle),
                             kind: .button { context.send(viewAction: .processTapAddTopic) })
                         .accessibilityIdentifier(A11yIdentifiers.roomDetailsScreen.addTopic)
